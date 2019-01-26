@@ -4,6 +4,7 @@ public class CritterController : MonoBehaviour
 {
     [SerializeField] float mouseSensitivity = 4f;
     [SerializeField] CritterMoverConfig critterConfig;
+    [SerializeField] CatAudioManager audioManager;
 
     CritterInputGrabber inputGrabber;
     CritterMover critterMover;
@@ -12,7 +13,7 @@ public class CritterController : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         inputGrabber = new CritterInputGrabber(mouseSensitivity);
-        critterMover = new CritterMover(gameObject, critterConfig);
+        critterMover = new CritterMover(gameObject, critterConfig, audioManager);
     }
 
     private void Update()

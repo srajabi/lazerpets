@@ -31,7 +31,7 @@ public class CritterMover
     int grounded;
     float cameraBobT;
 
-    public CritterMover(GameObject critter, CritterMoverConfig config)
+    public CritterMover(GameObject critter, CritterMoverConfig config, IPlayerAudioManager audioManager)
     {
         this.critter = critter;
         this.config = config;
@@ -42,7 +42,7 @@ public class CritterMover
         childCamera = critter.GetComponentInChildren<Camera>().gameObject;
         cameraBobT = 0;
         suspensionRadius = config.suspensionRadiusRatio * radius;
-        launcher = AttackLauncherFactory.Create(config.attackKind);
+        launcher = AttackLauncherFactory.Create(config.attackKind, audioManager);
     }
 
     public void UpdateImmediate(CritterInputPacket packet)
