@@ -109,8 +109,8 @@ public class ConnectionManager : MonoBehaviour {
 
 		networkDiscovery.StopBroadcast();
 
-		networkManager.networkAddress = server;
-		networkManager.StartClient();
+		//networkManager.networkAddress = server;
+		//networkManager.StartClient();
 
 		CurrentState = ConnectionMode.CLIENT;
                       
