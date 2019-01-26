@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using Networking;
 
 namespace Game
 {
@@ -13,9 +14,10 @@ namespace Game
 		private Player[] players;
         public IEnumerable<Player> Players { get { return players; } }
 
-		private List<GameObject> NetworkObjects = new List<GameObject>();
+        [SerializeField]
+        private Player PlayerPrefab;
 
-		private ConnectionManager connectionManager;
+        private ConnectionManager connectionManager;
         private GameSpawner spawner;
 
         public void Awake()
@@ -26,42 +28,67 @@ namespace Game
         
         public IEnumerator Start()
         {
-			connectionManager.OnActivePlayerChange += OnActivePlayerChange;
-			yield return connectionManager.Initialize();
+            connectionManager.OnPlayerConnect += OnPlayerConnect;
+            connectionManager.OnActivePlayersUpdated += OnActivePlayersUpdated;
+            connectionManager.OnPlayerDisconnect += OnPlayerDisconnect;
 
-			//var client = new NetworkClient();
-			//client.Connect("localhost", 64000);
-            
-			//if (!client.isConnected)
-			//{
-			//	var server = new NetworkServerSimple();
-			//	server.Listen(64000);
-			//}         
+            yield return connectionManager.Initialize();
 
             InitializeGame();
 
             Initialized = true;
             OnInitialized?.Invoke(this, EventArgs.Empty);
 
-            foreach (var player in players)
-            {
-                spawner.Spawn(player);
-            }
         }
 
-		public void OnActivePlayerChange()
+        private void OnPlayerDisconnect(Networking.NetworkPlayer player)
+        {
+            var go = NetworkToGameMap[player];
+
+            NetworkToGameMap.Remove(player);
+
+            GameObject.Destroy(go);
+
+            
+
+
+            Debug.Log("OnPlayerDisconnect Player #" + player.ID + "(" + player.Name + ")");
+        }
+
+        Dictionary<Networking.NetworkPlayer, Player> NetworkToGameMap = new Dictionary<Networking.NetworkPlayer, Player>();
+
+        private void OnPlayerConnect(Networking.NetworkPlayer netPlayer)
+        {
+            //var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+
+            //go.name = "Player_" + player.Name;
+
+            Player player = CreatePlayerObject(netPlayer);
+
+            NetworkToGameMap.Add(netPlayer, player);
+
+            Debug.Log("OnPlayerConnect Player #" + netPlayer.ID + "(" + netPlayer.Name + ")");
+        }
+
+        private Player CreatePlayerObject(Networking.NetworkPlayer netPlayer)
+        {
+            var player = GameObject.Instantiate<Player>(PlayerPrefab);
+
+            player.name = "[Player] " + netPlayer.Name;
+
+            spawner.Spawn(player);
+
+            return player;
+        }
+
+        public void OnActivePlayersUpdated()
 		{
-			Debug.Log("OnActivePlayerChange " + connectionManager.NumActivePlayers);
-			foreach(var go in NetworkObjects)
-			{
-				GameObject.Destroy(go);
-			}
-			for (int i = 0; i < connectionManager.NumActivePlayers; i++)
-			{
-				var go = new GameObject();
-				NetworkObjects.Add(go);
-			}
-		}
+            Debug.Log("OnActivePlayersUpdated");
+            foreach (Networking.NetworkPlayer player in connectionManager.ActivePlayers)
+            {
+                Debug.Log("OnActivePlayersUpdated Player #" + player.ID + "(" + player.Name + ")");
+            }
+        }
 
 		public void Update()
 		{
