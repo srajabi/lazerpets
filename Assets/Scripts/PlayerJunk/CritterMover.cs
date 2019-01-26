@@ -84,6 +84,10 @@ public class CritterMover
         }
     }
 
+    public void TakeStateFromServer(CritterStatePacket state)
+    {
+    }
+
     static Vector2 cameraBob(float t)
     {
         var x = Mathf.Sin(t);
