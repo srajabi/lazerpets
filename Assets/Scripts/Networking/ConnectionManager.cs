@@ -22,7 +22,10 @@ public class ConnectionManager : MonoBehaviour {
 	[SerializeField]
 	WrappedNetworkDiscovery networkDiscovery;
     
-	NetworkServerSimple networkServer;
+	WrappedNetworkServerSimple networkServer;
+
+	NetworkClient networkClient;
+
 
 	private ConnectionMode _currentState;
 
@@ -67,7 +70,7 @@ public class ConnectionManager : MonoBehaviour {
 		CurrentState = ConnectionMode.SERVER;
 
 
-		networkServer = new NetworkServerSimple();
+		networkServer = new WrappedNetworkServerSimple();
 
 		networkServer.Initialize();
 		networkServer.Listen(CONNECTION_PORT);
@@ -113,7 +116,15 @@ public class ConnectionManager : MonoBehaviour {
 		//networkManager.StartClient();
 
 		CurrentState = ConnectionMode.CLIENT;
+
+
+		networkClient = new NetworkClient();
+
+		networkClient.Connect(server, CONNECTION_PORT);
+
+		//networkClient.RegisterHandler()
                       
+		//networkClient.
 	}
     
 
