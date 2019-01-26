@@ -27,9 +27,9 @@ namespace Game
         
         public IEnumerator Start()
         {
-            connectionManager.OnPlayerConnect += OnNewConnect;
-            connectionManager.OnActivePlayerChange += OnActivePlayerChange;
-            connectionManager.OnPlayerDisconnect += OnNewDisconnect;
+            connectionManager.OnPlayerConnect += OnPlayerConnect;
+            connectionManager.OnActivePlayersUpdated += OnActivePlayersUpdated;
+            connectionManager.OnPlayerDisconnect += OnPlayerDisconnect;
 
             yield return connectionManager.Initialize();
 
@@ -53,22 +53,22 @@ namespace Game
             }
         }
 
-        private void OnNewDisconnect(Networking.NetworkPlayer obj)
+        private void OnPlayerDisconnect(Networking.NetworkPlayer player)
         {
-            Debug.Log("OnNewDisconnect");
+            Debug.Log("OnPlayerDisconnect Player #" + player.ID + "(" + player.Name + ")");
         }
 
-        private void OnNewConnect(Networking.NetworkPlayer obj)
+        private void OnPlayerConnect(Networking.NetworkPlayer player)
         {
-            Debug.Log("OnNewConnect");
+            Debug.Log("OnPlayerConnect Player #" + player.ID + "(" + player.Name + ")");
         }
 
-        public void OnActivePlayerChange()
+        public void OnActivePlayersUpdated()
 		{
-            Debug.Log("OnActivePlayerChange");
+            Debug.Log("OnActivePlayersUpdated");
             foreach (Networking.NetworkPlayer player in connectionManager.ActivePlayers)
             {
-                Debug.Log("OnActivePlayerChange Player #" + player.ID + "(" + player.Name + ")");
+                Debug.Log("OnActivePlayersUpdated Player #" + player.ID + "(" + player.Name + ")");
             }
         }
 

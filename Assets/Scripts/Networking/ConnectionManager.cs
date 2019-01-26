@@ -18,7 +18,7 @@ namespace Networking
 
         public event Action<NetworkPlayer> OnPlayerConnect;
         public event Action<NetworkPlayer> OnPlayerDisconnect;
-        public event Action OnActivePlayerChange;
+        public event Action OnActivePlayersUpdated;
 
         public ConnectionMode connectionMode
         {
@@ -59,7 +59,7 @@ namespace Networking
 
         private void ForwardOnActivePlayersUpdated()
         {
-            OnActivePlayerChange?.Invoke();
+            OnActivePlayersUpdated?.Invoke();
         }
 
         public int NumActivePlayers
