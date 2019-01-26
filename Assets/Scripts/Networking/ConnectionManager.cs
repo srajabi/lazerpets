@@ -44,7 +44,7 @@ public class ConnectionManager : MonoBehaviour {
 			return _currentState;
 		}
 	}
-    
+
 	public event CurrentStateChange OnCurrentStateChange;
 
     public enum NetworkMode { CLIENT, SERVER };

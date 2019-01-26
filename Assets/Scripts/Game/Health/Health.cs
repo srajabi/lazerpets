@@ -5,12 +5,14 @@ namespace Game
     public class HealthEventArgs : EventArgs
     {
         public float Modification;
-        public Player Player;
+        public Player Causee;
+        public Player Causer;
 
-        public HealthEventArgs(Player player, float modification)
+        public HealthEventArgs(Player causee, Player causer, float modification)
         {
             Modification = modification;
-            Player = player;
+            Causee = causee;
+            Causer = causer;
         }
     }
 
@@ -31,7 +33,7 @@ namespace Game
             IsDead = false;
         }
 
-        public void Modify(float amount)
+        public void Modify(float amount, Player causer)
         {
             if (IsDead)
             {
@@ -42,11 +44,11 @@ namespace Game
 
             if (Current <= 0)
             {
-                OnDeath?.Invoke(this, new HealthEventArgs(Player, amount));
+                OnDeath?.Invoke(this, new HealthEventArgs(Player, causer, amount));
                 return;
             }
 
-            OnModified?.Invoke(this, new HealthEventArgs(Player, amount));
+            OnModified?.Invoke(this, new HealthEventArgs(Player, causer, amount));
         }
     }
 }
