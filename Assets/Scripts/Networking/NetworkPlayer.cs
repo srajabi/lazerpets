@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Game;
 using UnityEngine.Networking;
 
 namespace Networking
@@ -27,6 +28,7 @@ namespace Networking
 
         public int ID;
         public string Name;
+        internal Player Player;
 
         public NetworkPlayer()
         {
