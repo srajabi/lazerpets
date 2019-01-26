@@ -20,14 +20,18 @@ namespace Game
         private ConnectionManager connectionManager;
         private GameSpawner spawner;
 
-        public void Awake()
+        private Dictionary<Networking.NetworkPlayer, Player> NetworkToGameMap = new Dictionary<Networking.NetworkPlayer, Player>();
+
+        public Coroutine Initialize(ConnectionManager connectionManager)
         {
-            connectionManager = new ConnectionManager();
-            spawner = new GameSpawner(this);
+            return StartCoroutine(InitializeAsync(connectionManager));
         }
-        
-        public IEnumerator Start()
+
+        private IEnumerator InitializeAsync(ConnectionManager connectionManager)
         {
+            this.connectionManager = connectionManager ?? throw new ArgumentNullException(nameof(connectionManager));
+            spawner = new GameSpawner(this);
+
             connectionManager.OnPlayerConnect += OnPlayerConnect;
             connectionManager.OnActivePlayersUpdated += OnActivePlayersUpdated;
             connectionManager.OnPlayerDisconnect += OnPlayerDisconnect;
@@ -49,13 +53,9 @@ namespace Game
 
             GameObject.Destroy(go);
 
-            
-
-
             Debug.Log("OnPlayerDisconnect Player #" + player.ID + "(" + player.Name + ")");
         }
 
-        Dictionary<Networking.NetworkPlayer, Player> NetworkToGameMap = new Dictionary<Networking.NetworkPlayer, Player>();
 
         private void OnPlayerConnect(Networking.NetworkPlayer netPlayer)
         {
@@ -92,8 +92,11 @@ namespace Game
 
 		public void Update()
 		{
-			connectionManager.Update();
-		}
+            if (Initialized)
+            {
+                connectionManager.Update();
+            }
+        }
 
 		private void InitializeGame()
         {
