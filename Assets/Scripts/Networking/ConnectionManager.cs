@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 namespace Networking
 {
-
     public enum ConnectionMode
     {
         SERVER,
@@ -13,6 +12,13 @@ namespace Networking
 
     public class ConnectionManager
     {
+        public ConnectionMode connectionMode { private set; get; }
+        public int NumActivePlayers { private set; get; }
+
+        public IEnumerable<NetworkPlayer> ActivePlayers
+        {
+            get { return activeConnection.ActivePlayers; }
+        }
 
         private IConnection activeConnection;
 
@@ -20,18 +26,16 @@ namespace Networking
         public event Action<NetworkPlayer> OnPlayerDisconnect;
         public event Action OnActivePlayersUpdated;
 
-        public string ServerAddress = "localhost";
+        public readonly string serverAddress = "localhost";
 
-        public ConnectionMode connectionMode
+        public ConnectionManager(string serverAddress)
         {
-            private set;
-            get;
+            this.serverAddress = serverAddress;
         }
 
         public IEnumerator Initialize()
         {
-
-            activeConnection = new ClientConnection(ServerAddress);
+            activeConnection = new ClientConnection(serverAddress);
             activeConnection.OnActivePlayersUpdated += ForwardOnActivePlayersUpdated;
             activeConnection.OnPlayerConnect += ForwardOnPlayerConnect;
             activeConnection.OnPlayerDisconnect += ForwardOnPlayerDisconnect;
@@ -58,9 +62,6 @@ namespace Networking
                     connectionMode = ConnectionMode.SERVER;
                 }
             }
-
-
-
         }
 
         private void ForwardOnPlayerDisconnect(NetworkPlayer obj)
@@ -78,19 +79,6 @@ namespace Networking
             OnActivePlayersUpdated?.Invoke();
         }
 
-        public int NumActivePlayers
-        {
-            get;
-            private set;
-        }
-        public IEnumerable<NetworkPlayer> ActivePlayers
-        {
-            get
-            {
-                return activeConnection.ActivePlayers;
-            }
-        }
-
         public void Update()
         {
             if (activeConnection != null)
@@ -98,8 +86,5 @@ namespace Networking
                 activeConnection.Update();
             }
         }
-
-
     }
-
 }
