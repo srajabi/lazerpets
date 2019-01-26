@@ -15,7 +15,7 @@ namespace Game
         {
             if (gameObject != null)
             {
-                var health = gameObject.GetComponent<Health>();
+                var health = gameObject.GetComponentInParent<Health>();
                 if (health != null)
                 {
                     Damager damager = Creator == null ? new Damager(this.gameObject) : new Damager(Creator);
