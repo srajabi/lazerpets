@@ -14,7 +14,7 @@ public class Boot : MonoBehaviour
         var gameCamera = Instantiate(gameCameraPrefab);
         var tvCamera = Instantiate(tvCameraPrefab);
 
-        var canvasController = ui.GetComponentInChildren<CanvasController>();
+        var canvasController = ui.GetComponentInChildren<TVCanvasController>();
         canvasController.Initialize(gameCamera, tvCamera);
     }
 }
