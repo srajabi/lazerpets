@@ -17,12 +17,19 @@ public class CritterController : MonoBehaviour
 
     private void Update()
     {
+        // Always use the local input grabber to drive the mover with UpdateImmediate
         critterMover.UpdateImmediate(inputGrabber.UpdateImmediate());
     }
 
     private void FixedUpdate()
     {
+        // If we're the server do this but don't use input grabber, use the remote packet input packet
         critterMover.UpdateTick(inputGrabber.UpdateTick());
+
+        // if we're a client and taking state from the server then run {
+        //     server.SendCritterInputPacket( inputGrabber.UpdateTick() );
+        //     critterMover.TakeStateFromServer( ... );
+        // }
     }
 
     private void OnDrawGizmosSelected()

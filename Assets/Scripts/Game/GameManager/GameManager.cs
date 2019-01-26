@@ -14,8 +14,6 @@ namespace Game
 		private Player[] players;
         public IEnumerable<Player> Players { get { return players; } }
 
-		private List<GameObject> NetworkObjects = new List<GameObject>();
-
 		private ConnectionManager connectionManager;
         private GameSpawner spawner;
 
@@ -33,15 +31,6 @@ namespace Game
 
             yield return connectionManager.Initialize();
 
-			//var client = new NetworkClient();
-			//client.Connect("localhost", 64000);
-            
-			//if (!client.isConnected)
-			//{
-			//	var server = new NetworkServerSimple();
-			//	server.Listen(64000);
-			//}         
-
             InitializeGame();
 
             Initialized = true;
@@ -55,11 +44,28 @@ namespace Game
 
         private void OnPlayerDisconnect(Networking.NetworkPlayer player)
         {
+            var go = SimpleMap[player];
+
+            SimpleMap.Remove(player);
+
+            GameObject.Destroy(go);
+
+            
+
+
             Debug.Log("OnPlayerDisconnect Player #" + player.ID + "(" + player.Name + ")");
         }
 
+        Dictionary<Networking.NetworkPlayer, GameObject> SimpleMap = new Dictionary<Networking.NetworkPlayer, GameObject>();
+
         private void OnPlayerConnect(Networking.NetworkPlayer player)
         {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+
+            go.name = "Player_" + player.Name;
+
+            SimpleMap.Add(player, go);
+
             Debug.Log("OnPlayerConnect Player #" + player.ID + "(" + player.Name + ")");
         }
 

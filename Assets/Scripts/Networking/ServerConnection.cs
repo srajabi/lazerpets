@@ -109,6 +109,9 @@ namespace Networking
 
             activePlayers.Add(player);
 
+            OnPlayerConnect?.Invoke(player);
+
+
             UpdateActivePlayers();
         }
 
