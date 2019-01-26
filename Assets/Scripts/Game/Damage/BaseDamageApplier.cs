@@ -18,7 +18,7 @@ namespace Game
                 var health = gameObject.GetComponent<Health>();
                 if (health != null)
                 {
-                    Damager damager = Creator == null ? new Damager(gameObject) : new Damager(Creator);
+                    Damager damager = Creator == null ? new Damager(this.gameObject) : new Damager(Creator);
                     var args = health.Modify(-DamageAmount, damager);
                     OnDamage?.Invoke(this, EventArgs.Empty);
                     return args != null;
