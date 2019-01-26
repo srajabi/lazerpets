@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.Networking;
 
 namespace Game
@@ -11,11 +12,16 @@ namespace Game
 
 		public event EventHandler<GameOutcomeEventArgs> OnGameEnded;
 
+        //This is temp and dumb
+		private List<GameObject> NetworkObjects = new List<GameObject>();
+
 		ConnectionManager connectionManager;
 
 		public IEnumerator Start()
         {
 			connectionManager = new ConnectionManager();
+
+			connectionManager.OnActivePlayerChange += OnActivePlayerChange;
 
 			yield return connectionManager.Initialize();
 
@@ -30,6 +36,20 @@ namespace Game
 
             InitializeGame();
         }
+
+		public void OnActivePlayerChange()
+		{
+			Debug.Log("OnActivePlayerChange " + connectionManager.NumActivePlayers);
+			foreach(var go in NetworkObjects)
+			{
+				GameObject.Destroy(go);
+			}
+			for (int i = 0; i < connectionManager.NumActivePlayers; i++)
+			{
+				var go = new GameObject();
+				NetworkObjects.Add(go);
+			}
+		}
 
 		public void Update()
 		{
