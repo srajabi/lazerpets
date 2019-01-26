@@ -19,7 +19,7 @@ namespace Game
 
         public string GetName()
         {
-            if (player != null) return player.PlayerName;
+            if (player != null) return player.NetworkPlayer.Name;
 
             return GameObject.name;
         }

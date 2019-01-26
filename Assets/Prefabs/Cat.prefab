@@ -154,6 +154,8 @@ MonoBehaviour:
   critterConfig:
     extraHeight: 0.19
     suspensionRadiusRatio: 0.9
+    projectilePrefab: {fileID: 2871842213195843072, guid: 94a3089ef00f13140b78b48da5425025,
+      type: 3}
 --- !u!54 &4339654572689190456
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -137,7 +137,11 @@ namespace Networking
         public override void Update()
         {
             base.Update();
+
+            //UpdateActivePlayers();
+
             networkServerSimple.Update();
+            
         }
 
     }

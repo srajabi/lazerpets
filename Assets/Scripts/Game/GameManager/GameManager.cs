@@ -65,6 +65,8 @@ namespace Game
 
             Player player = CreatePlayerObject(netPlayer);
 
+            
+
             NetworkToGameMap.Add(netPlayer, player);
 
             Debug.Log("OnPlayerConnect Player #" + netPlayer.ID + "(" + netPlayer.Name + ")");
@@ -73,8 +75,9 @@ namespace Game
         private Player CreatePlayerObject(Networking.NetworkPlayer netPlayer)
         {
             var player = GameObject.Instantiate<Player>(PlayerPrefab);
-
-            player.name = "[Player] " + netPlayer.Name;
+            player.NetworkPlayer = netPlayer;
+            player.name = string.Format("[Player] {0}", netPlayer.Name);
+            netPlayer.Player = player;
 
             spawner.Spawn(player);
 
