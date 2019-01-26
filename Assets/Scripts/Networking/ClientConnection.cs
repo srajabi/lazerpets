@@ -68,12 +68,12 @@ namespace Networking
             Debug.Log("UPDATE ACTIVE PLAYERS:");
             foreach (var playerData in playersUpdate.Players)
             {
-                var existingPlayer = activePlayers.Find(p => p.ID == playerData.id);
+                var existingPlayer = activePlayers.Find(p => p.ID == playerData.ID);
                 if (existingPlayer == null)
                 {
                     existingPlayer = new NetworkPlayer()
                     {
-                        ID = playerData.id,
+                        ID = playerData.ID,
                         Name = playerData.Name
                     };
                     activePlayers.Add(existingPlayer);
@@ -81,7 +81,7 @@ namespace Networking
                 }
                 existingPlayer.Name = playerData.Name;
 
-                Debug.Log("PLAYER #" + playerData.id + " name" + playerData.Name);
+                Debug.Log("PLAYER #" + playerData.ID + " name" + playerData.Name);
             }
 
 

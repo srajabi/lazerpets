@@ -13,12 +13,12 @@ namespace Game
 
         public void Spawn(Player player)
         {
-            player.transform.position = SpawnPointManager.GetRandomVacantPoint(player.CharacterType).transform.position;
+            player.transform.position = SpawnPointManager.GetRandomVacantPoint(player.NetworkPlayer.CharacterType).transform.position;
         }
 
         public void ReSpawn(Player player)
         {
-            player.transform.position = SpawnPointManager.GetFurthestPoint(player.CharacterType, manager.Players.Where(p=>p!=player).Select(p=>p.transform).ToArray()).transform.position;
+            player.transform.position = SpawnPointManager.GetFurthestPoint(player.NetworkPlayer.CharacterType, manager.Players.Where(p=>p!=player).Select(p=>p.transform).ToArray()).transform.position;
         }
     }
 }
