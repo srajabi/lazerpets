@@ -25,7 +25,8 @@ namespace Game
         public IEnumerator Start()
         {
 			connectionManager.OnActivePlayerChange += OnActivePlayerChange;
-			yield return connectionManager.Initialize();
+
+            yield return connectionManager.Initialize();
 
 			//var client = new NetworkClient();
 			//client.Connect("localhost", 64000);
@@ -44,17 +45,12 @@ namespace Game
 
 		public void OnActivePlayerChange()
 		{
-			Debug.Log("OnActivePlayerChange " + connectionManager.NumActivePlayers);
-			foreach(var go in NetworkObjects)
-			{
-				GameObject.Destroy(go);
-			}
-			for (int i = 0; i < connectionManager.NumActivePlayers; i++)
-			{
-				var go = new GameObject();
-				NetworkObjects.Add(go);
-			}
-		}
+            Debug.Log("OnActivePlayerChange");
+            foreach (NetworkPlayer player in connectionManager.ActivePlayers)
+            {
+                Debug.Log("OnActivePlayerChange Player #" + player.ID + "(" + player.Name + ")");
+            }
+        }
 
 		public void Update()
 		{

@@ -28,7 +28,7 @@ public class PlayersUpdateMessage : MessageBase
         public int id;
         public string Name;
 
-        internal static PlayerData Create(Player player)
+        internal static PlayerData Create(NetworkPlayer player)
         {
             var data = new PlayerData();
             data.id = player.ID;
@@ -39,7 +39,7 @@ public class PlayersUpdateMessage : MessageBase
 
     public PlayerData[] Players = new PlayerData[] { };
 
-    public static PlayersUpdateMessage Create(List<Player> activePlayers) {
+    public static PlayersUpdateMessage Create(List<NetworkPlayer> activePlayers) {
         var message = new PlayersUpdateMessage();
         message.Players = new PlayerData[activePlayers.Count];
 
@@ -55,6 +55,11 @@ public class PlayersUpdateMessage : MessageBase
 public interface IConnection
 {
 	IEnumerator Initialize();
+    event Action OnActivePlayersUpdated;
+    NetworkPlayer[] ActivePlayers
+    {
+        get;
+    }
 
     bool IsConnected
 	{
@@ -70,14 +75,21 @@ public abstract class BaseConnection : IConnection
 {
 	protected const int CONNECTION_PORT = 64000;
 
-    protected Player CurrentPlayer = new Player();
+    protected NetworkPlayer CurrentPlayer = new NetworkPlayer();
+
+    public abstract event Action OnActivePlayersUpdated;
 
     public abstract bool IsConnected
 	{
 		get;
 	}
 
-	public abstract IEnumerator Initialize();
+    public abstract NetworkPlayer[] ActivePlayers
+    {
+        get;
+    }
+
+    public abstract IEnumerator Initialize();
 	public abstract void Shutdown();
 
     public virtual void Update()
@@ -86,26 +98,19 @@ public abstract class BaseConnection : IConnection
 	}
 }
 
-public class Player
+public class NetworkPlayer
 {
-    static string[] NamePool = new string[] { "Fluffy", "Jasper", "Spike", "Pet", "Scuffy", "Boots", "Doggie", "Birdie", "Kitty" }.OrderBy(n => Guid.NewGuid()).ToArray();
+    static string[] NamePool = new string[] { "Fluffy", "Jasper", "Spike", "Pet", "Scuffy", "Boots", "Doggie", "Birdie", "Kitty" };
 
     internal bool isServer;
     internal NetworkConnection Connection;
 
-    public int ID
-    {
-        get
-        {
-            return (isServer) ? 0 : Connection.connectionId;
-        }
-    }
-
+    public int ID;
     public string Name;
 
-    public Player()
+    public NetworkPlayer()
     {
-        Name = NamePool[0];
+        Name = NamePool.OrderBy(n => Guid.NewGuid()).First();
     }
 }
 
@@ -113,7 +118,7 @@ public class ServerConnection : BaseConnection
 {
 	WrappedNetworkServerSimple networkServerSimple;
 
-    List<Player> activePlayers = new List<Player>();
+    List<NetworkPlayer> activePlayers = new List<NetworkPlayer>();
 
     private bool _isConnected = false;
 	public override bool IsConnected
@@ -124,7 +129,11 @@ public class ServerConnection : BaseConnection
 		}
 	}
 
-	public override IEnumerator Initialize()
+    public override NetworkPlayer[] ActivePlayers => activePlayers.ToArray();
+
+    public override event Action OnActivePlayersUpdated;
+
+    public override IEnumerator Initialize()
 	{
 		networkServerSimple = new WrappedNetworkServerSimple();
 
@@ -138,8 +147,11 @@ public class ServerConnection : BaseConnection
         Debug.Log("Server Initialized");
 
         CurrentPlayer.isServer = true;
+        CurrentPlayer.ID = 0;
 
         activePlayers.Add(CurrentPlayer);
+
+        UpdateActivePlayers();
 
         yield break;
 	}
@@ -167,15 +179,18 @@ public class ServerConnection : BaseConnection
 
             remotePlayer.Connection.Send(GameMsgType.UpdateActivePlayers, message);
         }
+
+        OnActivePlayersUpdated?.Invoke();
     }
 
     private void OnClientConnected(NetworkConnection obj)
     {
         Debug.Log("Server OnClientConnected" + obj.address + "connectionID " + obj.connectionId);
 
-        var player = new Player();
+        var player = new NetworkPlayer();
 
         player.Connection = obj;
+        player.ID = obj.connectionId;
 
         activePlayers.Add(player);
 
@@ -216,9 +231,15 @@ public class ClientConnection : BaseConnection
 		this.serverAddress = serverAddress;
 	}
 
-	public override bool IsConnected => client.isConnected;
+    public override event Action OnActivePlayersUpdated;
 
-	public override IEnumerator Initialize()
+    public override bool IsConnected => client.isConnected;
+
+    List<NetworkPlayer> activePlayers = new List<NetworkPlayer>();
+
+    public override NetworkPlayer[] ActivePlayers => activePlayers.ToArray();
+
+    public override IEnumerator Initialize()
 	{
         Debug.Log("Client Initializing...");
 
@@ -247,15 +268,33 @@ public class ClientConnection : BaseConnection
         var playersUpdate = netMsg.ReadMessage<PlayersUpdateMessage>();
 
         Debug.Log("UPDATE ACTIVE PLAYERS:");
-        foreach(var player in playersUpdate.Players)
+        foreach(var playerData in playersUpdate.Players)
         {
-            Debug.Log("PLAYER #" + player.id + " name" + player.Name);
+            var existingPlayer = activePlayers.Find(p => p.ID == playerData.id);
+            if (existingPlayer == null)
+            {
+                existingPlayer = new NetworkPlayer()
+                {
+                    ID = playerData.id
+                };
+                activePlayers.Add(existingPlayer);
+            }
+            existingPlayer.Name = playerData.Name;
+
+            Debug.Log("PLAYER #" + playerData.id + " name" + playerData.Name);
         }
+
+
+
+
+        OnActivePlayersUpdated?.Invoke();
     }
 
     public override void Shutdown()
 	{
-		if (client == null)
+        OnActivePlayersUpdated = null;
+
+        if (client == null)
 		{
 			return;
 		}
@@ -281,62 +320,51 @@ public class ConnectionManager {
 	public IEnumerator Initialize()
 	{
 
-		IConnection pendingConnection = new ClientConnection("localhost");
+        activeConnection = new ClientConnection("localhost");
+        activeConnection.OnActivePlayersUpdated += ForwardOnActivePlayersUpdated;
 
-		yield return pendingConnection.Initialize();
+        yield return activeConnection.Initialize();
 
-		if (pendingConnection.IsConnected)
+		if (activeConnection.IsConnected)
 		{
-			activeConnection = pendingConnection;
 			connectionMode = ConnectionMode.CLIENT;
 		}
 		else
 		{
-			pendingConnection.Shutdown();
+            activeConnection.Shutdown();
 
-			pendingConnection = new ServerConnection();
+            activeConnection = new ServerConnection();
+            activeConnection.OnActivePlayersUpdated += ForwardOnActivePlayersUpdated;
 
-			yield return pendingConnection.Initialize();
+            yield return activeConnection.Initialize();
 
-			if (pendingConnection.IsConnected)
+			if (activeConnection.IsConnected)
 			{
-				activeConnection = pendingConnection;
 				connectionMode = ConnectionMode.SERVER;
 			}         
-		}    
-		//OnActivePlayerChange.Invoke();      
+		}
+
+
+          
 	}
+
+    private void ForwardOnActivePlayersUpdated()
+    {
+        OnActivePlayerChange?.Invoke();
+    }
 
     public int NumActivePlayers
 	{
 		get;
 		private set;
 	}
-
-
-	private void HandleInitializeNewPlayer(NetworkMessage message)
-	{
-		var data = message.ReadMessage<InitializeNewPlayerData>();
-		NumActivePlayers = data.NumActivePlayers;
-		Debug.Log("HandleInitializeNewPlayer NumActivePlayers:" + data.NumActivePlayers);
-		OnActivePlayerChange.Invoke();
-	}
-
-	//public void OnClientConnected(NetworkConnection conn)
-	//{
-	//	NumActivePlayers = networkServerSimple.connections.Count + 1;
-	//	conn.Send(GameMsgType.InitializeNewPlayer, new InitializeNewPlayerData(){
-	//		NumActivePlayers = NumActivePlayers
-	//	});      
-	//	OnActivePlayerChange.Invoke();
-
-
-	//}
-    
-	//private void OnClientDisconnected(NetworkConnection conn)
-	//{
-	//	OnActivePlayerChange.Invoke();
-	//}
+    public IEnumerable<NetworkPlayer> ActivePlayers
+    {
+        get
+        {
+            return activeConnection.ActivePlayers;
+        }
+    }
 
 	public void Update()
 	{
