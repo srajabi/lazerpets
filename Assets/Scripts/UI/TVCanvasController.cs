@@ -60,7 +60,7 @@ public class TVCanvasController : MonoBehaviour
 
     private void OnCreateServer()
     {
-        ipAddress = "0.0.0.0"; //Get an ip address plz
+        ipAddress = LocalHostIP; //Get an ip address plz
         PlayExitMenuAnimationAndConnect();
     }
 
