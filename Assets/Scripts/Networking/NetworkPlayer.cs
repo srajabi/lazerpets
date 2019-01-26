@@ -1,25 +1,36 @@
 ﻿using System;
 using System.Linq;
+using Game;
 using UnityEngine.Networking;
 
 namespace Networking
 {
     public class NetworkPlayer
     {
-        static string[] NamePool = new string[] {
+        static readonly string[] NAMES_CATS = new string[] {
             "Fluffy",
-            "Jasper",
-            "Spike",
-            "Pet",
             "Scuffy",
-            "Boots",
-            "Doggie",
-            "Birdie",
-            "Kitty",
-            "Baloo",
+            "Scruffy",
+            "Kitty", 
             "Frodo",
             "Calcifer",
-            "Sydney" // dog
+        };
+
+        static readonly string[] NAMES_DOGS = new string[] {
+            "Jasper",
+            "Spike",
+            "Rex",
+            "Boots",
+            "Doggie",
+            "Baloo",
+            "Sydney",
+        };
+        
+        static readonly string[] NAMES_BIRDS = new string[] {
+            "Birdie",
+            "Squawk",
+            "BigBird",
+            "Fly'y McFly",
         };
 
         internal bool isServer;
@@ -27,10 +38,26 @@ namespace Networking
 
         public int ID;
         public string Name;
+        public CharacterTypes CharacterType;
+        internal Player Player;
 
         public NetworkPlayer()
         {
-            Name = NamePool.OrderBy(n => Guid.NewGuid()).First();
+            CharacterType = (CharacterTypes)UnityEngine.Random.Range(1, 3);
+
+            switch (CharacterType)
+            {
+                case CharacterTypes.Unassigned:
+                case CharacterTypes.Cat:
+                    Name = NAMES_CATS.OrderBy(n => Guid.NewGuid()).First();
+                    break;
+                case CharacterTypes.Dog:
+                    Name = NAMES_DOGS.OrderBy(n => Guid.NewGuid()).First();
+                    break;
+                case CharacterTypes.Bird:
+                    Name = NAMES_BIRDS.OrderBy(n => Guid.NewGuid()).First();
+                    break;
+            }
         }
     }
 

@@ -137,7 +137,12 @@ namespace Networking
         public override void Update()
         {
             base.Update();
+
+            // TODO: syncing position this way is sloppy
+            UpdateActivePlayers();
+
             networkServerSimple.Update();
+            
         }
 
     }

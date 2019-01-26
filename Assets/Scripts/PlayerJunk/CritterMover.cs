@@ -6,6 +6,7 @@ public class CritterMoverConfig
 {
     public float extraHeight;
     public float suspensionRadiusRatio;
+    public AttackKind attackKind;
 }
 
 public class CritterMover
@@ -18,6 +19,7 @@ public class CritterMover
     readonly Rigidbody rb;
     readonly float radius;
     readonly float suspensionRadius;
+    readonly IAttackLauncher launcher;
 
     int grounded;
     float cameraBobT;
@@ -33,6 +35,7 @@ public class CritterMover
         childCamera = critter.GetComponentInChildren<Camera>().gameObject;
         cameraBobT = 0;
         suspensionRadius = config.suspensionRadiusRatio * radius;
+        launcher = AttackLauncherFactory.Create(config.attackKind);
     }
 
     public void UpdateImmediate(CritterInputPacket packet)
@@ -42,7 +45,7 @@ public class CritterMover
         childCamera.transform.localPosition = 0.02f * cameraBob(cameraBobT);
     }
 
-    public void UpdateTick(CritterInputPacket packet)
+    public CritterStatePacket UpdateTick(CritterInputPacket packet)
     {
         if (packet.forward) {
             rb.velocity += childHead.transform.forward * 0.1f;
@@ -82,6 +85,13 @@ public class CritterMover
 
             grounded = 2;
         }
+
+        launcher.Update(packet.shoot, critter.transform.position, packet.headOrientation * Vector3.forward);
+
+        return new CritterStatePacket {
+            position = newPosition,
+            velocity = rb.velocity,
+        };
     }
 
     public void TakeStateFromServer(CritterStatePacket state)

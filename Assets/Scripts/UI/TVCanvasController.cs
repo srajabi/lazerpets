@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections;
+﻿using Game;
+using Networking;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class TVCanvasController : MonoBehaviour
 {
-    private const string LocalHostIP = "127.0.0.1";
+    private const string LocalHostIP = "localhost";
 
     [SerializeField] private Camera UICamera;
     [SerializeField] private Button CreateServer;
@@ -59,7 +60,7 @@ public class TVCanvasController : MonoBehaviour
 
     private void OnCreateServer()
     {
-        ipAddress = "0.0.0.0"; //Get an ip address plz
+        ipAddress = LocalHostIP; //Get an ip address plz
         PlayExitMenuAnimationAndConnect();
     }
 
@@ -89,8 +90,9 @@ public class TVCanvasController : MonoBehaviour
         GameCanvas.Initialize(ipAddress, tvCamera, UICamera, gameCamera, this);
         GameCanvas.gameObject.SetActive(true);
 
-        // TODO: Connect To Server, or we can do it while animating, and then whichever finishes last is the thing that triggers the connect thingy;
-        // inject IP into ScreenSpace Canvas;
+        var connectionManager = new ConnectionManager(ipAddress);
+        var gameManager = GameObject.FindObjectOfType<GameManager>();
+        gameManager.Initialize(connectionManager);
     }
 
     private void ResetState()
