@@ -15,11 +15,13 @@ namespace Game
 
 		private List<GameObject> NetworkObjects = new List<GameObject>();
 
-		ConnectionManager connectionManager;
+		private ConnectionManager connectionManager;
+        private GameSpawner spawner;
 
         public void Awake()
         {
             connectionManager = new ConnectionManager();
+            spawner = new GameSpawner(this);
         }
         
         public IEnumerator Start()
@@ -41,6 +43,11 @@ namespace Game
 
             Initialized = true;
             OnInitialized?.Invoke(this, EventArgs.Empty);
+
+            foreach (var player in players)
+            {
+                spawner.Spawn(player);
+            }
         }
 
 		public void OnActivePlayerChange()

@@ -46,12 +46,12 @@ namespace Game
             return points.ElementAt(Random.Range(0, count));
         }
 
-        public static SpawnPoint GetFirstVacantPoint(SpawnTypes type)
+        public static SpawnPoint GetFirstVacantPoint(CharacterTypes type)
         {
             return instance.SpawnPoints.First(p => p.IsVacant && p.SpawnType == type);
         }
 
-        public static SpawnPoint GetRandomVacantPoint(SpawnTypes type)
+        public static SpawnPoint GetRandomVacantPoint(CharacterTypes type)
         {
             var points = instance.SpawnPoints.Where(p => p.IsVacant && p.SpawnType == type);
             int count = points.Count();
@@ -84,7 +84,7 @@ namespace Game
             return candidate;
         }
 
-        public static SpawnPoint GetFurthestPoint(SpawnTypes types, params Transform[] objects)
+        public static SpawnPoint GetFurthestPoint(CharacterTypes types, params Transform[] objects)
         {
             var points = instance.SpawnPoints.Where(p => p.IsVacant && p.SpawnType == types);
             float maxDistance = float.MinValue;
