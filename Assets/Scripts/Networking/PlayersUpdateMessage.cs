@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Game;
+using System.Collections.Generic;
 using UnityEngine.Networking;
 
 namespace Networking
@@ -7,14 +8,16 @@ namespace Networking
     {
         public class PlayerData
         {
-            public int id;
+            public int ID;
             public string Name;
+            public CharacterTypes CharacterType;
 
             internal static PlayerData Create(NetworkPlayer player)
             {
                 var data = new PlayerData();
-                data.id = player.ID;
+                data.ID = player.ID;
                 data.Name = player.Name;
+                data.CharacterType = player.CharacterType;
                 return data;
             }
         }
