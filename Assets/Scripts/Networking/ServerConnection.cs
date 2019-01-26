@@ -138,7 +138,8 @@ namespace Networking
         {
             base.Update();
 
-            //UpdateActivePlayers();
+            // TODO: syncing position this way is sloppy
+            UpdateActivePlayers();
 
             networkServerSimple.Update();
             
