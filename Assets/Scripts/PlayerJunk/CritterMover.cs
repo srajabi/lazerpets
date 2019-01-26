@@ -86,6 +86,8 @@ public class CritterMover
 
     public void TakeStateFromServer(CritterStatePacket state)
     {
+        rb.MovePosition(state.position);
+        rb.velocity = state.velocity;
     }
 
     static Vector2 cameraBob(float t)
