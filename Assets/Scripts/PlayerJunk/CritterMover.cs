@@ -6,6 +6,13 @@ public class CritterMoverConfig
 {
     public float extraHeight;
     public float suspensionRadiusRatio;
+
+    public float maxSpeed;
+    public float walkAccel;
+    public float autoDecel;
+    public float jumpVelY;
+    public float gravityMult;
+
     public AttackKind attackKind;
 }
 
@@ -47,29 +54,46 @@ public class CritterMover
 
     public CritterStatePacket UpdateTick(CritterInputPacket packet)
     {
+        bool walking = false;
+
+        rb.velocity += Physics.gravity * config.gravityMult * Time.fixedDeltaTime;
+
+        var fwd = childHead.transform.forward.WithY(0).normalized;
+        var right = childHead.transform.right.WithY(0).normalized;
+
         if (packet.forward) {
-            rb.velocity += childHead.transform.forward * 0.1f;
-        }
-        else if (packet.backward) {
-            rb.velocity += childHead.transform.forward * -0.1f;
+            rb.velocity += fwd * config.walkAccel * Time.fixedDeltaTime;
+            walking = true;
+        } else if (packet.backward) {
+            rb.velocity -= fwd * config.walkAccel * Time.fixedDeltaTime;
+            walking = true;
         }
 
         if (packet.rightward) {
-            rb.velocity += childHead.transform.right * 0.1f;
+            rb.velocity += right * config.walkAccel * Time.fixedDeltaTime;
+            walking = true;
+        } else if (packet.leftward) {
+            rb.velocity -= right * config.walkAccel * Time.fixedDeltaTime;
+            walking = true;
         }
-        else if (packet.leftward) {
-            rb.velocity += childHead.transform.right * -0.1f;
+
+        var flatVel = rb.velocity.WithY(0);
+
+        if (flatVel.sqrMagnitude > config.maxSpeed * config.maxSpeed) {
+            flatVel = flatVel.normalized * config.maxSpeed;
         }
+
+        if (!walking) {
+            flatVel *= 0.5f;
+        }
+
+        rb.velocity = flatVel + Vector3.up * rb.velocity.y;
 
         if (packet.jump && grounded > 0) {
             grounded = 0;
-            rb.velocity += Vector3.up * 5;
+            rb.velocity = rb.velocity.WithY(config.jumpVelY);
         }
 
-        rb.velocity = rb.velocity.WithX(rb.velocity.x * 0.8f);
-        rb.velocity = rb.velocity.WithZ(rb.velocity.z * 0.8f);
-
-        rb.velocity += Physics.gravity * Time.fixedDeltaTime;
         var newPosition = rb.position + rb.velocity * Time.fixedDeltaTime;
 
         if (grounded > 0) grounded--;

@@ -154,6 +154,11 @@ MonoBehaviour:
   critterConfig:
     extraHeight: 0.19
     suspensionRadiusRatio: 0.9
+    maxSpeed: 3
+    walkAccel: 20
+    autoDecel: 1
+    jumpVelY: 7
+    gravityMult: 2
     attackKind: 0
 --- !u!54 &4339654572689190456
 Rigidbody:
