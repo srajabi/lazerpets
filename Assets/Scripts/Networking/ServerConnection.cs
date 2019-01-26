@@ -61,10 +61,22 @@ namespace Networking
 
             OnPlayerDisconnect?.Invoke(player);
 
-            //TODO Notify clients
-
 
             activePlayers.Remove(player);
+
+            MessageBase message = new PlayerDisconnectMessage()
+            {
+                id = player.ID
+            };
+            foreach (var activePlayer in activePlayers)
+            {
+                if (activePlayer.isServer)
+                {
+                    continue;
+                }
+                activePlayer.Connection.Send(GameMsgType.PlayerDisconnect, message);
+            }
+
 
             UpdateActivePlayers();
         }

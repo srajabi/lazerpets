@@ -34,7 +34,8 @@ namespace Networking
 
             client = new NetworkClient();
 
-            client.RegisterHandler(GameMsgType.UpdateActivePlayers, UpdateActivePlayers);
+            client.RegisterHandler(GameMsgType.UpdateActivePlayers, HandleUpdateActivePlayers);
+            client.RegisterHandler(GameMsgType.PlayerDisconnect, HandlePlayerDisconnect);
 
             client.Connect(serverAddress, CONNECTION_PORT);
 
@@ -52,7 +53,15 @@ namespace Networking
             }
         }
 
-        private void UpdateActivePlayers(NetworkMessage netMsg)
+        private void HandlePlayerDisconnect(NetworkMessage netMsg)
+        {
+            var message = netMsg.ReadMessage<PlayerDisconnectMessage>();
+            var player = activePlayers.Find(p => p.ID == message.id);
+            activePlayers.Remove(player);
+            OnPlayerDisconnect(player);
+        }
+
+        private void HandleUpdateActivePlayers(NetworkMessage netMsg)
         {
             var playersUpdate = netMsg.ReadMessage<PlayersUpdateMessage>();
 
