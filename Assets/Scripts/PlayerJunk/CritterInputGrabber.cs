@@ -45,6 +45,7 @@ public class CritterInputGrabber
             leftward  = Input.GetKey(KeyCode.A),
             rightward = Input.GetKey(KeyCode.D),
             jump      = Input.GetKey(KeyCode.Space),
+            shoot     = Input.GetMouseButton(0),
         };
 
         thisTickFrame.forward   = immediateInputToTick(thisTickFrame.forward,   lastTickFrame.forward,   thisImmediateFrame.forward);
@@ -52,6 +53,8 @@ public class CritterInputGrabber
         thisTickFrame.leftward  = immediateInputToTick(thisTickFrame.leftward,  lastTickFrame.leftward,  thisImmediateFrame.leftward);
         thisTickFrame.rightward = immediateInputToTick(thisTickFrame.rightward, lastTickFrame.rightward, thisImmediateFrame.rightward);
         thisTickFrame.jump      = immediateInputToTick(thisTickFrame.jump,      lastTickFrame.jump,      thisImmediateFrame.jump);
+        thisTickFrame.shoot     = immediateInputToTick(thisTickFrame.shoot,     lastTickFrame.shoot,     thisImmediateFrame.shoot);
+        thisTickFrame.headOrientation = thisImmediateFrame.headOrientation;
 
         return thisImmediateFrame;
     }
