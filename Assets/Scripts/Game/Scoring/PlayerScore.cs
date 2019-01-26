@@ -1,14 +1,26 @@
-﻿namespace Game
+﻿using UnityEngine;
+
+namespace Game
 {
     public class PlayerScore : PlayerBehaviour
     {
-        public int Deaths        { get; private set; }
-        public int Kills         { get; private set; }
-        public float DamageDealt { get; private set; }
-        public float DamageTaken { get; private set; }
+        [SerializeField]
+        private int deaths;
+        public int Deaths { get { return deaths; } }
+        [SerializeField]
+        private int kills;
+        public int Kills { get { return kills; } }
+        [SerializeField]
+        private float damageTaken;
+        public float DamageTaken { get { return damageTaken; } }
+        [SerializeField]
+        private float damageDealt;
+        public float DamageDealt { get { return damageDealt; } }
 
         public override void Awake()
         {
+            base.Awake();
+
             var health = Player.GetComponent<Health>();
             health.OnDeath += HandleDeath;
             health.OnModified += HandleDamage;
@@ -17,37 +29,33 @@
         private void HandleDamage(object sender, HealthEventArgs e)
         {
             OnDamageTaken(e.Modification);
-
-            var causer = e.Causer.GetComponent<PlayerScore>();
-            causer.OnDamageDealt(e.Modification);
+            e.Causer.GameObject.GetComponent<PlayerScore>()?.OnDamageDealt(e.Modification);
         }
 
         private void HandleDeath(object sender, HealthEventArgs e)
         {
             OnDeath();
-
-            var causer = e.Causer.GetComponent<PlayerScore>();
-            causer.OnKill();
+            e.Causer.GameObject.GetComponent<PlayerScore>()?.OnKill();
         }
 
-        public void OnDeath()
+        private void OnDeath()
         {
-            Deaths++;
+            deaths++;
         }
 
-        public void OnKill()
+        private void OnKill()
         {
-            Kills++;
+            kills++;
         }
 
-        public void OnDamageTaken(float amount)
+        private void OnDamageTaken(float amount)
         {
-            DamageTaken -= amount; //negative, since amount is a health modification
+            damageDealt -= amount; //negative, since amount is a health modification
         }
 
-        public void OnDamageDealt(float amount)
+        private void OnDamageDealt(float amount)
         {
-            DamageTaken -= amount; //negative, since amount is a health modification
+            damageTaken -= amount; //negative, since amount is a health modification
         }
     }
 }

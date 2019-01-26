@@ -79,12 +79,12 @@ namespace Game
 
         private void OnDeath(object sender, HealthEventArgs e)
         {
-            Debug.LogErrorFormat("Player {0} ate shit and died thanks to {1}.", e.Causee, e.Causer);
+            Debug.LogErrorFormat("Player {0} died thanks to {1}.", e.Causee.GetName(), e.Causer.GetName());
         }
 
         private void OnHealthModified(object sender, HealthEventArgs e)
         {
-            Debug.LogErrorFormat("Player {0} ate shit and took some fucking damage from {1}.", e.Causee, e.Causer);
+            Debug.LogErrorFormat("Player {0} took some damage from {1}.", e.Causee.GetName(), e.Causer.GetName());
         }
     }
 }
