@@ -14,7 +14,10 @@ namespace Game
 		private Player[] players;
         public IEnumerable<Player> Players { get { return players; } }
 
-		private ConnectionManager connectionManager;
+        [SerializeField]
+        private Player PlayerPrefab;
+
+        private ConnectionManager connectionManager;
         private GameSpawner spawner;
 
         public void Awake()
@@ -36,17 +39,13 @@ namespace Game
             Initialized = true;
             OnInitialized?.Invoke(this, EventArgs.Empty);
 
-            foreach (var player in players)
-            {
-                spawner.Spawn(player);
-            }
         }
 
         private void OnPlayerDisconnect(Networking.NetworkPlayer player)
         {
-            var go = SimpleMap[player];
+            var go = NetworkToGameMap[player];
 
-            SimpleMap.Remove(player);
+            NetworkToGameMap.Remove(player);
 
             GameObject.Destroy(go);
 
@@ -56,17 +55,30 @@ namespace Game
             Debug.Log("OnPlayerDisconnect Player #" + player.ID + "(" + player.Name + ")");
         }
 
-        Dictionary<Networking.NetworkPlayer, GameObject> SimpleMap = new Dictionary<Networking.NetworkPlayer, GameObject>();
+        Dictionary<Networking.NetworkPlayer, Player> NetworkToGameMap = new Dictionary<Networking.NetworkPlayer, Player>();
 
-        private void OnPlayerConnect(Networking.NetworkPlayer player)
+        private void OnPlayerConnect(Networking.NetworkPlayer netPlayer)
         {
-            var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 
-            go.name = "Player_" + player.Name;
+            //go.name = "Player_" + player.Name;
 
-            SimpleMap.Add(player, go);
+            Player player = CreatePlayerObject(netPlayer);
 
-            Debug.Log("OnPlayerConnect Player #" + player.ID + "(" + player.Name + ")");
+            NetworkToGameMap.Add(netPlayer, player);
+
+            Debug.Log("OnPlayerConnect Player #" + netPlayer.ID + "(" + netPlayer.Name + ")");
+        }
+
+        private Player CreatePlayerObject(Networking.NetworkPlayer netPlayer)
+        {
+            var player = GameObject.Instantiate<Player>(PlayerPrefab);
+
+            player.name = "[Player] " + netPlayer.Name;
+
+            spawner.Spawn(player);
+
+            return player;
         }
 
         public void OnActivePlayersUpdated()

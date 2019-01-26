@@ -18,7 +18,8 @@ namespace Networking
             "Kitty",
             "Baloo",
             "Frodo",
-            "Calcifer"
+            "Calcifer",
+            "Sydney" // dog
         };
 
         internal bool isServer;
