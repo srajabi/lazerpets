@@ -43,6 +43,7 @@ namespace Networking
 
             CurrentPlayer.isServer = true;
             CurrentPlayer.ID = 0;
+            CurrentPlayer.IsSelf = true;
 
             activePlayers.Add(CurrentPlayer);
 
