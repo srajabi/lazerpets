@@ -10,4 +10,5 @@ public struct CritterInputPacket
     public bool leftward;
     public bool rightward;
     public bool jump;
+    public bool shoot;
 }
