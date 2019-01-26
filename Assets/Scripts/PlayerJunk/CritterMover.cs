@@ -45,7 +45,7 @@ public class CritterMover
         childCamera.transform.localPosition = 0.02f * cameraBob(cameraBobT);
     }
 
-    public void UpdateTick(CritterInputPacket packet)
+    public CritterStatePacket UpdateTick(CritterInputPacket packet)
     {
         if (packet.forward) {
             rb.velocity += childHead.transform.forward * 0.1f;
@@ -87,6 +87,11 @@ public class CritterMover
         }
 
         launcher.Update(packet.shoot, critter.transform.position, packet.headOrientation * Vector3.forward);
+
+        return new CritterStatePacket {
+            position = newPosition,
+            velocity = rb.velocity,
+        };
     }
 
     public void TakeStateFromServer(CritterStatePacket state)

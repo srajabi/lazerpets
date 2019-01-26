@@ -24,7 +24,8 @@ public class CritterController : MonoBehaviour
     private void FixedUpdate()
     {
         // If we're the server do this but don't use input grabber, use the remote packet input packet
-        critterMover.UpdateTick(inputGrabber.UpdateTick());
+        var critterNewState = critterMover.UpdateTick(inputGrabber.UpdateTick());
+        // broadcastToClients( critterNewState );
 
         // if we're a client and taking state from the server then run {
         //     server.SendCritterInputPacket( inputGrabber.UpdateTick() );
