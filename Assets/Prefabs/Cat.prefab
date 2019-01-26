@@ -92,7 +92,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 7959
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -154,8 +154,7 @@ MonoBehaviour:
   critterConfig:
     extraHeight: 0.19
     suspensionRadiusRatio: 0.9
-    projectilePrefab: {fileID: 2871842213195843072, guid: 94a3089ef00f13140b78b48da5425025,
-      type: 3}
+    attackKind: 0
 --- !u!54 &4339654572689190456
 Rigidbody:
   m_ObjectHideFlags: 0
