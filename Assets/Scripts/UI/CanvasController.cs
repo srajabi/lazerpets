@@ -51,16 +51,16 @@ public class CanvasController : MonoBehaviour
 
     private IEnumerator CameraAnimation()
     {
-        while (Vector3.Distance(UICamera.transform.position, GameCamera.transform.position) > 0.05)
+        while (Vector3.Distance(UICamera.transform.position, gameCamera.transform.position) > 0.05)
         {
             UICamera.transform.position = Vector3.Lerp(
                 UICamera.transform.position,
-                GameCamera.transform.position,
+                gameCamera.transform.position,
                 Time.deltaTime * 0.7f);
 
             UICamera.transform.rotation = Quaternion.Lerp(
                 UICamera.transform.rotation,
-                GameCamera.transform.rotation,
+                gameCamera.transform.rotation,
                 Time.deltaTime * 0.7f);
 
             yield return null;
@@ -72,8 +72,8 @@ public class CanvasController : MonoBehaviour
     private void HandoffCameraToGame()
     {
         UICamera.gameObject.SetActive(false);
-        GameCamera.gameObject.SetActive(true);
-        TVCamera.gameObject.SetActive(true);
+        gameCamera.gameObject.SetActive(true);
+        tvCamera.gameObject.SetActive(true);
 
         UICamera.transform.rotation = startRotation;
         UICamera.transform.position = startPosition;
