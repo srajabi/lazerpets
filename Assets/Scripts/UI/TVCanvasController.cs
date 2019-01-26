@@ -9,11 +9,14 @@ public class TVCanvasController : MonoBehaviour
     private const string LocalHostIP = "localhost";
 
     [SerializeField] private Camera UICamera;
+    [SerializeField] private GameObject Credits;
+    [SerializeField] private GameObject ButtonList;
     [SerializeField] private Button CreateServer;
     [SerializeField] private Button Play;
-    [SerializeField] private Button Back;
+    [SerializeField] private Button ConnectBack;
+    [SerializeField] private Button CreditsBack;
     [SerializeField] private InputField IPAddressField;
-    [SerializeField] private Button Options;
+    [SerializeField] private Button CreditsButton;
     [SerializeField] private Button Quit;
     [SerializeField] private GameCanvasController GameCanvas;
     [SerializeField] private AudioManager AudioManager;
@@ -45,12 +48,12 @@ public class TVCanvasController : MonoBehaviour
 
         IPAddressField.gameObject.SetActive(true);
         Play.GetComponentInChildren<Text>().text = "Connect";
-        Options.gameObject.SetActive(false);
+        Credits.gameObject.SetActive(false);
         Quit.gameObject.SetActive(false);
-        Back.gameObject.SetActive(true);
+        ConnectBack.gameObject.SetActive(true);
 
         Play.onClick.RemoveAllListeners();
-        Play.onClick.AddListener(() => OnConnect());
+        Play.onClick.AddListener(OnConnect);
     }
 
     private void OnConnect()
@@ -65,8 +68,11 @@ public class TVCanvasController : MonoBehaviour
         PlayExitMenuAnimationAndConnect();
     }
 
-    private void OnOptions()
+    private void OnCredits()
     {
+        Credits.gameObject.SetActive(true);
+        ButtonList.gameObject.SetActive(false);
+        CreditsBack.onClick.AddListener(OnBack);
     }
 
     private void OnQuit()
@@ -103,21 +109,25 @@ public class TVCanvasController : MonoBehaviour
 
         CreateServer.gameObject.SetActive(true);
         Play.gameObject.SetActive(true);
-        IPAddressField.gameObject.SetActive(false);
-        Options.gameObject.SetActive(true);
+        CreditsButton.gameObject.SetActive(true);
         Quit.gameObject.SetActive(true);
-        Back.gameObject.SetActive(false);
+        ButtonList.gameObject.SetActive(true);
+
+        ConnectBack.gameObject.SetActive(false);
+        IPAddressField.gameObject.SetActive(false);
+        Credits.gameObject.SetActive(false);
 
         CreateServer.onClick.RemoveAllListeners();
         Play.onClick.RemoveAllListeners();
-        Options.onClick.RemoveAllListeners();
+        CreditsButton.onClick.RemoveAllListeners();
         Quit.onClick.RemoveAllListeners();
-        Back.onClick.RemoveAllListeners();
+        ConnectBack.onClick.RemoveAllListeners();
+        CreditsBack.onClick.RemoveAllListeners();
 
-        CreateServer.onClick.AddListener(() => OnCreateServer());
-        Play.onClick.AddListener(() => OnPlay());
-        Options.onClick.AddListener(() => OnOptions());
-        Quit.onClick.AddListener(() => OnQuit());
-        Back.onClick.AddListener(() => OnBack());
+        CreateServer.onClick.AddListener(OnCreateServer);
+        Play.onClick.AddListener(OnPlay);
+        CreditsButton.onClick.AddListener(OnCredits);
+        Quit.onClick.AddListener(OnQuit);
+        ConnectBack.onClick.AddListener(OnBack);
     }
 }
