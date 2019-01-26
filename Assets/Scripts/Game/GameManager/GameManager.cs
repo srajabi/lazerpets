@@ -1,10 +1,13 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Game
 {
     public class GameManager : MonoBehaviour
     {
         private Player[] players;
+
+        public event EventHandler<GameOutcomeEventArgs> OnGameEnded;
 
         public void Start()
         {
@@ -33,12 +36,12 @@ namespace Game
 
         private void OnDeath(object sender, HealthEventArgs e)
         {
-            Debug.LogErrorFormat("Player {0} ate shit and died.");
+            Debug.LogErrorFormat("Player {0} ate shit and died thanks to {1}.", e.Causee, e.Causer);
         }
 
         private void OnHealthModified(object sender, HealthEventArgs e)
         {
-            Debug.LogErrorFormat("Player {0} ate shit and took some fucking damage.");
+            Debug.LogErrorFormat("Player {0} ate shit and took some fucking damage from {1}.", e.Causee, e.Causer);
         }
     }
 }
