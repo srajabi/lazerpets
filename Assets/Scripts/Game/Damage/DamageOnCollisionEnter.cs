@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game
 {
-    public class DamageOnCollision : BaseDamageApplier
+    public class DamageOnCollisionEnter : BaseDamageApplier
     {
         public event EventHandler OnCollision;
 

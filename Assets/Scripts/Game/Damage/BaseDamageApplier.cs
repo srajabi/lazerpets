@@ -11,7 +11,7 @@ namespace Game
         [SerializeField]
         private float DamageAmount = 10;
 
-        protected void Apply(GameObject gameObject)
+        protected bool Apply(GameObject gameObject)
         {
             if (gameObject != null)
             {
@@ -19,10 +19,13 @@ namespace Game
                 if (health != null)
                 {
                     Damager damager = Creator == null ? new Damager(gameObject) : new Damager(Creator);
-                    health.Modify(-DamageAmount, damager);
+                    var args = health.Modify(-DamageAmount, damager);
                     OnDamage?.Invoke(this, EventArgs.Empty);
+                    return args != null;
                 }
             }
+
+            return false;
         }
     }
 }
