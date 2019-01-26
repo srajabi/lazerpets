@@ -92,7 +92,7 @@ public class TVCanvasController : MonoBehaviour
 
         var connectionManager = new ConnectionManager(ipAddress);
         var gameManager = GameObject.FindObjectOfType<GameManager>();
-        gameManager.Initialize()
+        gameManager.Initialize(connectionManager);
     }
 
     private void ResetState()
