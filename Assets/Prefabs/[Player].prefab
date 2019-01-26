@@ -1,5 +1,17 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &5014688266898364266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4869449804273856472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba5bc1bbd51aab04dbfc8394c5a0df0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4869449804589213420
 GameObject:
   m_ObjectHideFlags: 0
@@ -47,8 +59,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50aae295bd294e64fa8c68f593b8181f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CharacterType: 1
-  PlayerName: Kitty
 --- !u!114 &1076331524129721552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -168,17 +178,17 @@ PrefabInstance:
     - target: {fileID: 1499570224439341409, guid: 4cfababa620716246a910e34c0bef6c1,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 18.26826
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1499570224439341409, guid: 4cfababa620716246a910e34c0bef6c1,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.651402
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1499570224439341409, guid: 4cfababa620716246a910e34c0bef6c1,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.7350695
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1499570224439341409, guid: 4cfababa620716246a910e34c0bef6c1,
         type: 3}
@@ -267,6 +277,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4cfababa620716246a910e34c0bef6c1, type: 3}
+--- !u!1 &4869449804273856472 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1499570224439341412, guid: 4cfababa620716246a910e34c0bef6c1,
+    type: 3}
+  m_PrefabInstance: {fileID: 6294987608332377788}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4869449804273856477 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1499570224439341409, guid: 4cfababa620716246a910e34c0bef6c1,
