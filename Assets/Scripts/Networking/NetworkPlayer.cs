@@ -41,6 +41,8 @@ namespace Networking
         public CharacterTypes CharacterType;
         internal Player Player;
 
+        public bool IsSelf { get; internal set; }
+
         public NetworkPlayer()
         {
             CharacterType = (CharacterTypes)UnityEngine.Random.Range(1, 3);

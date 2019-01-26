@@ -74,7 +74,8 @@ namespace Networking
                     existingPlayer = new NetworkPlayer()
                     {
                         ID = playerData.ID,
-                        Name = playerData.Name
+                        Name = playerData.Name,
+                        IsSelf = playerData.ID == client.connection.connectionId
                     };
                     activePlayers.Add(existingPlayer);
                     OnPlayerConnect?.Invoke(existingPlayer);
