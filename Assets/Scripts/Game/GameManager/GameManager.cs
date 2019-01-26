@@ -1,20 +1,43 @@
 ﻿using System;
 using UnityEngine;
+using System.Collections;
+using UnityEngine.Networking;
 
 namespace Game
 {
     public class GameManager : MonoBehaviour
     {
-        private Player[] players;
+		private Player[] players;
 
-        public event EventHandler<GameOutcomeEventArgs> OnGameEnded;
+		public event EventHandler<GameOutcomeEventArgs> OnGameEnded;
 
-        public void Start()
+		ConnectionManager connectionManager;
+
+		public IEnumerator Start()
         {
+			connectionManager = new ConnectionManager();
+
+			yield return connectionManager.Initialize();
+
+			//var client = new NetworkClient();
+			//client.Connect("localhost", 64000);
+            
+			//if (!client.isConnected)
+			//{
+			//	var server = new NetworkServerSimple();
+			//	server.Listen(64000);
+			//}         
+
             InitializeGame();
         }
 
-        private void InitializeGame()
+		public void Update()
+		{
+			connectionManager.Update();
+
+		}
+
+		private void InitializeGame()
         {
             FindPlayers();
             for (int i = 0; i < players.Length; i++)
