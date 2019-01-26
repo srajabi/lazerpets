@@ -39,6 +39,7 @@ namespace Networking
         public int ID;
         public string Name;
         public CharacterTypes CharacterType;
+        internal Player Player;
 
         public NetworkPlayer()
         {

@@ -79,7 +79,11 @@ namespace Networking
                     activePlayers.Add(existingPlayer);
                     OnPlayerConnect?.Invoke(existingPlayer);
                 }
+
+                // todo, this is dumb
                 existingPlayer.Name = playerData.Name;
+
+                existingPlayer.Player.CritterController.transform.SetPositionAndRotation(playerData.Position, playerData.Rotation);
 
                 Debug.Log("PLAYER #" + playerData.ID + " name" + playerData.Name);
             }
