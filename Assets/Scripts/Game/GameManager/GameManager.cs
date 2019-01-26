@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 
 namespace Game
 {
@@ -9,19 +9,22 @@ namespace Game
     {
         public bool Initialized { get; private set; }
         public event EventHandler OnInitialized;
-
+        
 		private Player[] players;
         public IEnumerable<Player> Players { get { return players; } }
-        
+
+		private List<GameObject> NetworkObjects = new List<GameObject>();
+
 		ConnectionManager connectionManager;
 
         public void Awake()
         {
             connectionManager = new ConnectionManager();
         }
-
+        
         public IEnumerator Start()
         {
+			connectionManager.OnActivePlayerChange += OnActivePlayerChange;
 			yield return connectionManager.Initialize();
 
 			//var client = new NetworkClient();
@@ -38,6 +41,20 @@ namespace Game
             Initialized = true;
             OnInitialized?.Invoke(this, EventArgs.Empty);
         }
+
+		public void OnActivePlayerChange()
+		{
+			Debug.Log("OnActivePlayerChange " + connectionManager.NumActivePlayers);
+			foreach(var go in NetworkObjects)
+			{
+				GameObject.Destroy(go);
+			}
+			for (int i = 0; i < connectionManager.NumActivePlayers; i++)
+			{
+				var go = new GameObject();
+				NetworkObjects.Add(go);
+			}
+		}
 
 		public void Update()
 		{

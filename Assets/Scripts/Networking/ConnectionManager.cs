@@ -13,11 +13,17 @@ public enum ConnectionMode
 public class GameMsgType
 {
 	public const short Beef = MsgType.Highest + 1;
+	public const short InitializeNewPlayer = MsgType.Highest + 2;
 }
 
 public class BeefMessage : MessageBase
 {
 	public int data;
+}
+
+public class InitializeNewPlayerData : MessageBase
+{
+	public int NumActivePlayers;
 }
 
 public class ConnectionManager {
@@ -27,6 +33,8 @@ public class ConnectionManager {
 	NetworkClient client;
 
 	WrappedNetworkServerSimple networkServerSimple;
+
+	public event Action OnActivePlayerChange;
 
 	public ConnectionMode connectionMode
 	{
@@ -40,6 +48,9 @@ public class ConnectionManager {
 		connectionMode = ConnectionMode.CLIENT;
 		client = new NetworkClient();
 
+		client.RegisterHandler(GameMsgType.InitializeNewPlayer, HandleInitializeNewPlayer);
+
+
 		client.Connect("localhost", CONNECTION_PORT);
 
 
@@ -51,13 +62,13 @@ public class ConnectionManager {
 		{
 			Debug.Log("Client MODE");         
 
-			client.RegisterHandler(MsgType.Connect, OnClientConnect);
+			//client.RegisterHandler(MsgType.Connect, OnClientConnect);
 
 
-			client.RegisterHandler(GameMsgType.Beef, HandleBeef);
+			client.RegisterHandler(GameMsgType.InitializeNewPlayer, HandleInitializeNewPlayer);
 
 
-			client.Send(GameMsgType.Beef, new BeefMessage());
+			//client.Send(GameMsgType.Beef, new BeefMessage());
 
 		}
 		else 
@@ -69,13 +80,53 @@ public class ConnectionManager {
 
 			connectionMode = ConnectionMode.SERVER;
 			networkServerSimple = new WrappedNetworkServerSimple();
+
+			networkServerSimple.OnClientConnected += OnClientConnected;
+			networkServerSimple.OnClientDisconnected += OnClientDisconnected;
+
 			networkServerSimple.Initialize();
 			networkServerSimple.Listen(CONNECTION_PORT);
-			networkServerSimple.RegisterHandler(GameMsgType.Beef, HandleBeef);
+			//networkServerSimple.RegisterHandler(GameMsgType.Beef, HandleBeef);
+
+
+
+			OnActivePlayerChange.Invoke();
 
 
 		}
 
+	}
+
+    public int NumActivePlayers
+	{
+		get;
+		private set;
+	}
+
+
+	private void HandleInitializeNewPlayer(NetworkMessage message)
+	{
+		var data = message.ReadMessage<InitializeNewPlayerData>();
+		NumActivePlayers = data.NumActivePlayers;
+		Debug.Log("HandleInitializeNewPlayer NumActivePlayers:" + data.NumActivePlayers);
+		OnActivePlayerChange.Invoke();
+
+	}
+
+	public void OnClientConnected(NetworkConnection conn)
+	{
+		NumActivePlayers = networkServerSimple.connections.Count + 1;
+		conn.Send(GameMsgType.InitializeNewPlayer, new InitializeNewPlayerData(){
+			NumActivePlayers = NumActivePlayers
+		});      
+		OnActivePlayerChange.Invoke();
+
+
+	}
+    
+	private void OnClientDisconnected(NetworkConnection conn)
+	{
+		OnActivePlayerChange.Invoke();
 	}
 
     public void Update()
@@ -86,17 +137,17 @@ public class ConnectionManager {
 		}
 	}
 
-	public void OnClientConnect(NetworkMessage msg)
-    {
-		Debug.Log("OnClientConnect" + connectionMode);
+	//public void OnClientConnect(NetworkMessage msg)
+ //   {
+	//	Debug.Log("OnClientConnect" + connectionMode);
 
-    }
+ //   }
 
-	public void HandleBeef(NetworkMessage msg)
-	{
-		Debug.Log("HANDLING BEEF" + connectionMode);
+	//public void HandleBeef(NetworkMessage msg)
+	//{
+	//	Debug.Log("HANDLING BEEF" + connectionMode);
         
-	}
+	//}
 
 	//const int CONNECTION_PORT = 64000;
 
