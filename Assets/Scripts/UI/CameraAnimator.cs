@@ -23,17 +23,20 @@ public class CameraAnimator
 
     public IEnumerator Animate()
     {
+        var startTime = Time.time;
         while (Vector3.Distance(sourceCamera.transform.position, destinationCamera.transform.position) > 0.05)
         {
+            var timeSinceStarted = Time.time - startTime;
+
             sourceCamera.transform.position = Vector3.Lerp(
                 sourceCamera.transform.position,
                 destinationCamera.transform.position,
-                Time.deltaTime * 0.7f);
+                Time.deltaTime * timeSinceStarted);
 
             sourceCamera.transform.rotation = Quaternion.Lerp(
                 sourceCamera.transform.rotation,
                 destinationCamera.transform.rotation,
-                Time.deltaTime * 0.7f);
+                Time.deltaTime * timeSinceStarted);
 
             yield return null;
         }
