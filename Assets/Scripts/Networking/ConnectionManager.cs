@@ -16,6 +16,8 @@ namespace Networking
 
         private IConnection activeConnection;
 
+        public event Action<NetworkPlayer> OnPlayerConnect;
+        public event Action<NetworkPlayer> OnPlayerDisconnect;
         public event Action OnActivePlayerChange;
 
         public ConnectionMode connectionMode

@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using Networking;
 
 namespace Game
 {
@@ -26,7 +27,9 @@ namespace Game
         
         public IEnumerator Start()
         {
-			connectionManager.OnActivePlayerChange += OnActivePlayerChange;
+            connectionManager.OnPlayerConnect += OnNewConnect;
+            connectionManager.OnActivePlayerChange += OnActivePlayerChange;
+            connectionManager.OnPlayerDisconnect += OnNewDisconnect;
 
             yield return connectionManager.Initialize();
 
@@ -50,10 +53,20 @@ namespace Game
             }
         }
 
-		public void OnActivePlayerChange()
+        private void OnNewDisconnect(Networking.NetworkPlayer obj)
+        {
+            Debug.Log("OnNewDisconnect");
+        }
+
+        private void OnNewConnect(Networking.NetworkPlayer obj)
+        {
+            Debug.Log("OnNewConnect");
+        }
+
+        public void OnActivePlayerChange()
 		{
             Debug.Log("OnActivePlayerChange");
-            foreach (NetworkPlayer player in connectionManager.ActivePlayers)
+            foreach (Networking.NetworkPlayer player in connectionManager.ActivePlayers)
             {
                 Debug.Log("OnActivePlayerChange Player #" + player.ID + "(" + player.Name + ")");
             }
