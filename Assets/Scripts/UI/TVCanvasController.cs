@@ -16,6 +16,7 @@ public class TVCanvasController : MonoBehaviour
     [SerializeField] private Button Options;
     [SerializeField] private Button Quit;
     [SerializeField] private GameCanvasController GameCanvas;
+    [SerializeField] private AudioManager AudioManager;
 
     private Camera gameCamera;
     private Camera tvCamera;
@@ -81,6 +82,7 @@ public class TVCanvasController : MonoBehaviour
     private void PlayExitMenuAnimationAndConnect()
     {
         StartCoroutine(cameraAnimator.Animate());
+        StartCoroutine(AudioManager.FadeOut());
     }
 
     private void HandoffCameraToGame() // we can make this a IEnumerator if connecting is async
