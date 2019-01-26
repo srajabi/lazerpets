@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 namespace Game
 {
@@ -15,7 +14,7 @@ namespace Game
         }
     }
 
-    public class Health : MonoBehaviour
+    public class Health : PlayerBehaviour
     {
         public float Default = 100;
         public float Current = 100;
@@ -24,8 +23,10 @@ namespace Game
         public event EventHandler<HealthEventArgs> OnModified;
         public event EventHandler<HealthEventArgs> OnDeath;
 
-        public void Awake()
+        public override void Awake()
         {
+            base.Awake();
+
             Current = Default;
             IsDead = false;
         }
@@ -41,16 +42,11 @@ namespace Game
 
             if (Current <= 0)
             {
-                OnDeath?.Invoke(this, GetArgs(amount));
+                OnDeath?.Invoke(this, new HealthEventArgs(Player, amount));
                 return;
             }
 
-            OnModified?.Invoke(this, GetArgs(amount));
-        }
-
-        private HealthEventArgs GetArgs(float modification)
-        {
-            return new HealthEventArgs(GetComponentInParent<Player>(), modification);
+            OnModified?.Invoke(this, new HealthEventArgs(Player, amount));
         }
     }
 }
