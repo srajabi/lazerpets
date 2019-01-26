@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using Networking;
 
 namespace Game
 {
@@ -26,8 +27,11 @@ namespace Game
         
         public IEnumerator Start()
         {
-			connectionManager.OnActivePlayerChange += OnActivePlayerChange;
-			yield return connectionManager.Initialize();
+            connectionManager.OnPlayerConnect += OnPlayerConnect;
+            connectionManager.OnActivePlayersUpdated += OnActivePlayersUpdated;
+            connectionManager.OnPlayerDisconnect += OnPlayerDisconnect;
+
+            yield return connectionManager.Initialize();
 
 			//var client = new NetworkClient();
 			//client.Connect("localhost", 64000);
@@ -49,19 +53,24 @@ namespace Game
             }
         }
 
-		public void OnActivePlayerChange()
+        private void OnPlayerDisconnect(Networking.NetworkPlayer player)
+        {
+            Debug.Log("OnPlayerDisconnect Player #" + player.ID + "(" + player.Name + ")");
+        }
+
+        private void OnPlayerConnect(Networking.NetworkPlayer player)
+        {
+            Debug.Log("OnPlayerConnect Player #" + player.ID + "(" + player.Name + ")");
+        }
+
+        public void OnActivePlayersUpdated()
 		{
-			Debug.Log("OnActivePlayerChange " + connectionManager.NumActivePlayers);
-			foreach(var go in NetworkObjects)
-			{
-				GameObject.Destroy(go);
-			}
-			for (int i = 0; i < connectionManager.NumActivePlayers; i++)
-			{
-				var go = new GameObject();
-				NetworkObjects.Add(go);
-			}
-		}
+            Debug.Log("OnActivePlayersUpdated");
+            foreach (Networking.NetworkPlayer player in connectionManager.ActivePlayers)
+            {
+                Debug.Log("OnActivePlayersUpdated Player #" + player.ID + "(" + player.Name + ")");
+            }
+        }
 
 		public void Update()
 		{
