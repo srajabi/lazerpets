@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using Game;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -8,18 +9,20 @@ namespace Networking
     {
         public class PlayerData
         {
-            public int id;
+            public int ID;
             public string Name;
+            public CharacterTypes CharacterType;
             public Vector3 Position;
             public Quaternion Rotation;
 
             internal static PlayerData Create(NetworkPlayer player)
             {
                 var data = new PlayerData();
-                data.id = player.ID;
+                data.ID = player.ID;
                 data.Name = player.Name;
                 data.Position = player.Player.CritterController.transform.position;
                 data.Rotation = player.Player.CritterController.transform.rotation;
+                data.CharacterType = player.CharacterType;
                 return data;
             }
         }

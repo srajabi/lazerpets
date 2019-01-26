@@ -5,7 +5,7 @@ public class Boot : MonoBehaviour
 {
     private void Start()
     {
-        SceneManager.LoadScene("MainLevel", LoadSceneMode.Additive);
+        SceneManager.LoadScene("Game", LoadSceneMode.Additive);
         var uiPrefab = Resources.Load<GameObject>("Prefabs/UI");
         var gameCameraPrefab = Resources.Load<Camera>("Prefabs/GameCamera");
         var tvCameraPrefab = Resources.Load<Camera>("Prefabs/TVCamera");

@@ -68,12 +68,12 @@ namespace Networking
             Debug.Log("UPDATE ACTIVE PLAYERS:");
             foreach (var playerData in playersUpdate.Players)
             {
-                var existingPlayer = activePlayers.Find(p => p.ID == playerData.id);
+                var existingPlayer = activePlayers.Find(p => p.ID == playerData.ID);
                 if (existingPlayer == null)
                 {
                     existingPlayer = new NetworkPlayer()
                     {
-                        ID = playerData.id,
+                        ID = playerData.ID,
                         Name = playerData.Name
                     };
                     activePlayers.Add(existingPlayer);
@@ -82,11 +82,10 @@ namespace Networking
 
                 // todo, this is dumb
                 existingPlayer.Name = playerData.Name;
-                existingPlayer.Player.PlayerName = playerData.Name;
 
                 existingPlayer.Player.CritterController.transform.SetPositionAndRotation(playerData.Position, playerData.Rotation);
 
-                Debug.Log("PLAYER #" + playerData.id + " name" + playerData.Name);
+                Debug.Log("PLAYER #" + playerData.ID + " name" + playerData.Name);
             }
 
 

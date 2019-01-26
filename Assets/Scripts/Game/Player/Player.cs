@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
+using NetworkPlayer = Networking.NetworkPlayer;
 
 namespace Game
 {
     public class Player : MonoBehaviour
     {
-        public CharacterTypes CharacterType;
-        public string PlayerName = null;
+        public NetworkPlayer NetworkPlayer { get; set; }
         public Health Health { get; private set; }
         public PlayerScore Score { get; private set; }
         public CritterController CritterController { get; private set; }
