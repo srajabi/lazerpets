@@ -20,10 +20,7 @@ public class CanvasController : MonoBehaviour
     {
         this.gameCamera = gameCamera ?? throw new ArgumentNullException(nameof(gameCamera));
         this.tvCamera = tvCamera ?? throw new ArgumentNullException(nameof(tvCamera));
-    }
 
-    private void Start()
-    {
         Play.onClick.AddListener(() => OnPlay());
         Options.onClick.AddListener(() => OnOptions());
         Quit.onClick.AddListener(() => OnQuit());

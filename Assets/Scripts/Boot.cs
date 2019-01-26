@@ -5,8 +5,8 @@ public class Boot : MonoBehaviour
 {
     private void Start()
     {
-        SceneManager.LoadScene("MainLevel");
-        var uiPrefab = Resources.Load<CanvasController>("Prefabs/UI");
+        SceneManager.LoadScene("MainLevel", LoadSceneMode.Additive);
+        var uiPrefab = Resources.Load<GameObject>("Prefabs/UI");
         var gameCameraPrefab = Resources.Load<Camera>("Prefabs/GameCamera");
         var tvCameraPrefab = Resources.Load<Camera>("Prefabs/TVCamera");
 
@@ -14,6 +14,7 @@ public class Boot : MonoBehaviour
         var gameCamera = Instantiate(gameCameraPrefab);
         var tvCamera = Instantiate(tvCameraPrefab);
 
-        ui.Initialize(gameCamera, tvCamera);
+        var canvasController = ui.GetComponentInChildren<CanvasController>();
+        canvasController.Initialize(gameCamera, tvCamera);
     }
 }
