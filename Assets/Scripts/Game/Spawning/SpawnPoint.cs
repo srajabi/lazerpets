@@ -3,19 +3,11 @@ using UnityEngine;
 
 namespace Game
 {
-    public enum SpawnTypes
-    {
-        Unassigned = 0,
-        Cat        = 1,
-        Dog        = 2,
-        Bird       = 3,
-    }
-
     public class SpawnPoint : MonoBehaviour
     {
         [SerializeField]
-        private SpawnTypes _SpawnType;
-        public SpawnTypes SpawnType { get { return _SpawnType; } }
+        private CharacterTypes _SpawnType;
+        public CharacterTypes SpawnType { get { return _SpawnType; } }
         
         [SerializeField]
         private float Radius = 2;
@@ -28,16 +20,16 @@ namespace Game
         {
             switch (SpawnType)
             {
-                case SpawnTypes.Unassigned:
+                case CharacterTypes.Unassigned:
                     Gizmos.color = IsVacant ? Color.magenta : Color.red;
                     break;
-                case SpawnTypes.Cat:
+                case CharacterTypes.Cat:
                     Gizmos.color = IsVacant ? Color.cyan : Color.blue;
                     break;
-                case SpawnTypes.Dog:
+                case CharacterTypes.Dog:
                     Gizmos.color = IsVacant ? Color.green : Color.Lerp(Color.green, Color.blue, 0.3f);
                     break;
-                case SpawnTypes.Bird:
+                case CharacterTypes.Bird:
                     Gizmos.color = IsVacant ? Color.Lerp(Color.yellow, Color.red, 0.5f) : Color.yellow;
                     break;
                 default:

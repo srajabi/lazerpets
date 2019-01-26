@@ -4,6 +4,7 @@ namespace Game
 {
     public class Player : MonoBehaviour
     {
+        public CharacterTypes CharacterType;
         public string PlayerName = null;
         public Health Health { get; private set; }
         public PlayerScore Score { get; private set; }

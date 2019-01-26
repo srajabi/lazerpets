@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -12,12 +13,42 @@ public enum ConnectionMode
 
 public class GameMsgType
 {
-	public const short InitializeNewPlayer = MsgType.Highest + 1;
+	public const short UpdateActivePlayers = MsgType.Highest + 1;
 }
 
 public class InitializeNewPlayerData : MessageBase
 {
 	public int NumActivePlayers;
+}
+
+public class PlayersUpdateMessage : MessageBase
+{
+    public class PlayerData
+    {
+        public int id;
+        public string Name;
+
+        internal static PlayerData Create(Player player)
+        {
+            var data = new PlayerData();
+            data.id = player.ID;
+            data.Name = player.Name;
+            return data;
+        }
+    }
+
+    public PlayerData[] Players = new PlayerData[] { };
+
+    public static PlayersUpdateMessage Create(List<Player> activePlayers) {
+        var message = new PlayersUpdateMessage();
+        message.Players = new PlayerData[activePlayers.Count];
+
+        for (int i = 0; i < activePlayers.Count; i++)
+        {
+            message.Players[i] = PlayerData.Create(activePlayers[i]);
+        }
+        return message;
+    }
 }
 
 
@@ -39,7 +70,9 @@ public abstract class BaseConnection : IConnection
 {
 	protected const int CONNECTION_PORT = 64000;
 
-	public abstract bool IsConnected
+    protected Player CurrentPlayer = new Player();
+
+    public abstract bool IsConnected
 	{
 		get;
 	}
@@ -49,15 +82,40 @@ public abstract class BaseConnection : IConnection
 
     public virtual void Update()
 	{
-		
+		// no-op
 	}
+}
+
+public class Player
+{
+    static string[] NamePool = new string[] { "Fluffy", "Jasper", "Spike", "Pet", "Scuffy", "Boots", "Doggie", "Birdie", "Kitty" }.OrderBy(n => Guid.NewGuid()).ToArray();
+
+    internal bool isServer;
+    internal NetworkConnection Connection;
+
+    public int ID
+    {
+        get
+        {
+            return (isServer) ? 0 : Connection.connectionId;
+        }
+    }
+
+    public string Name;
+
+    public Player()
+    {
+        Name = NamePool[0];
+    }
 }
 
 public class ServerConnection : BaseConnection
 {
 	WrappedNetworkServerSimple networkServerSimple;
 
-	private bool _isConnected = false;
+    List<Player> activePlayers = new List<Player>();
+
+    private bool _isConnected = false;
 	public override bool IsConnected
 	{
 		get
@@ -70,17 +128,62 @@ public class ServerConnection : BaseConnection
 	{
 		networkServerSimple = new WrappedNetworkServerSimple();
 
-        //networkServerSimple.OnClientConnected += OnClientConnected;
-        //networkServerSimple.OnClientDisconnected += OnClientDisconnected;
+        networkServerSimple.OnClientConnected += OnClientConnected;
+        networkServerSimple.OnClientDisconnected += OnClientDisconnected;
 
         networkServerSimple.Initialize();
         networkServerSimple.Listen(CONNECTION_PORT);
 		_isConnected = true;
 
-		yield break;
+        Debug.Log("Server Initialized");
+
+        CurrentPlayer.isServer = true;
+
+        activePlayers.Add(CurrentPlayer);
+
+        yield break;
 	}
 
-	public override void Shutdown()
+    private void OnClientDisconnected(NetworkConnection obj)
+    {
+        Debug.Log("Server OnClientDisconnected" + obj.address + "connectionID " + obj.connectionId);
+
+        var player = activePlayers.Where(p => p.Connection == obj).First();
+        activePlayers.Remove(player);
+
+        UpdateActivePlayers();
+    }
+
+    private void UpdateActivePlayers()
+    {
+        var message = PlayersUpdateMessage.Create(activePlayers);
+
+        foreach (var remotePlayer in activePlayers)
+        {
+            if (remotePlayer.isServer)
+            {
+                continue;
+            }
+
+            remotePlayer.Connection.Send(GameMsgType.UpdateActivePlayers, message);
+        }
+    }
+
+    private void OnClientConnected(NetworkConnection obj)
+    {
+        Debug.Log("Server OnClientConnected" + obj.address + "connectionID " + obj.connectionId);
+
+        var player = new Player();
+
+        player.Connection = obj;
+
+        activePlayers.Add(player);
+
+        UpdateActivePlayers();
+    }
+    
+
+    public override void Shutdown()
 	{
 		if (networkServerSimple == null)
 		{
@@ -117,18 +220,40 @@ public class ClientConnection : BaseConnection
 
 	public override IEnumerator Initialize()
 	{
-		client = new NetworkClient();      
+        Debug.Log("Client Initializing...");
 
-        //client.RegisterHandler(GameMsgType.InitializeNewPlayer, HandleInitializeNewPlayer);      
+        client = new NetworkClient();      
+
+        client.RegisterHandler(GameMsgType.UpdateActivePlayers, UpdateActivePlayers);      
 
 		client.Connect(serverAddress, CONNECTION_PORT);      
 
 		var time = Time.time + CONNECTION_TIMEOUT_SECONDS;
 
         yield return new WaitUntil(() => client.isConnected || Time.time > time);
+
+        if (client.isConnected)
+        {
+            Debug.Log("Client Connected!");
+        }
+        else
+        {
+            Debug.Log("Client Not Connected!");
+        }
 	}
 
-	public override void Shutdown()
+    private void UpdateActivePlayers(NetworkMessage netMsg)
+    {
+        var playersUpdate = netMsg.ReadMessage<PlayersUpdateMessage>();
+
+        Debug.Log("UPDATE ACTIVE PLAYERS:");
+        foreach(var player in playersUpdate.Players)
+        {
+            Debug.Log("PLAYER #" + player.id + " name" + player.Name);
+        }
+    }
+
+    public override void Shutdown()
 	{
 		if (client == null)
 		{
@@ -195,7 +320,6 @@ public class ConnectionManager {
 		NumActivePlayers = data.NumActivePlayers;
 		Debug.Log("HandleInitializeNewPlayer NumActivePlayers:" + data.NumActivePlayers);
 		OnActivePlayerChange.Invoke();
-
 	}
 
 	//public void OnClientConnected(NetworkConnection conn)
