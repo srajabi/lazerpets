@@ -19,7 +19,6 @@ public class ConnectionManager : MonoBehaviour {
 	const int CONNECTION_PORT = 64000;
 
     //Unity stuff
-	[SerializeField]
 	WrappedNetworkDiscovery networkDiscovery;
     
 	WrappedNetworkServerSimple networkServer;
@@ -48,20 +47,93 @@ public class ConnectionManager : MonoBehaviour {
     
 	public event CurrentStateChange OnCurrentStateChange;
 
-	// Use this for initialization
-	void Start()
-	{
-		//networkDiscovery = gameObject.AddComponent<WrappedNetworkDiscovery>();
-		//networkDiscovery.useGUILayout = false;
+    public enum NetworkMode { CLIENT, SERVER };
+    public NetworkMode MyNetworkMode;
 
+    // Use this for initialization
+    void Start()
+	{
+		networkDiscovery = gameObject.AddComponent<WrappedNetworkDiscovery>();
+		networkDiscovery.showGUI = false;
+
+
+
+        /*
 		networkDiscovery.Initialize();
 
+        StartClientMode();
+        networkDiscovery.OnServerFound += (a, b) =>
+        {
+            Debug.Log(a + " " + b);
+
+            ConnectToServer(a);
+        };
+        */
+
+        if (MyNetworkMode == NetworkMode.SERVER)
+        {
+            Server__();
+        }
+        else
+        {
+            client = new NetworkClient();
+            client.Connect("localhost", CONNECTION_PORT);
+            client.RegisterHandler(MsgType.Connect, OnClientConnected);
+        }
+    }
+
+    NetworkClient client;
+
+    public void Server__()
+    {
+        NetworkServer.RegisterHandler(MsgType.Connect, OnConnect);
+        NetworkServer.RegisterHandler(MsgType.Disconnect, OnPlayerDisconnect);
+        NetworkServer.Listen(CONNECTION_PORT);
+    }
+
+
+    private void OnPlayerDisconnect(NetworkMessage netMsg)
+    {
+        Debug.Log("player disconnected!");
+    }
+
+    private void OnConnect(NetworkMessage netMsg)
+    {
+        Debug.Log("player connected!");
+    }
+
+
+    private void OnClientConnected(NetworkMessage netMsg)
+    {
+        Debug.Log("Connected: " + netMsg);
+        //ClientScene.Ready(netMsg.conn);
+        //ClientScene.AddPlayer(0);
 
 
 
-	}
+        StartCoroutine(sendOverWire());
+    }
 
-	public void StartServerMode()
+    public class ScoreMessage : MessageBase
+    {
+        public int score;
+    }
+
+    IEnumerator sendOverWire()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1);
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write("casdfasdfasdfa");
+            client.SendWriter(writer, 0);
+
+
+            client.Send(1, new ScoreMessage());
+        }
+    }
+
+    public void StartServerMode()
 	{
 		if (CurrentState != ConnectionMode.IDLE)
 		{
