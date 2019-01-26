@@ -10,6 +10,8 @@ namespace Networking
         protected NetworkPlayer CurrentPlayer = new NetworkPlayer();
 
         public abstract event Action OnActivePlayersUpdated;
+        public abstract event Action<NetworkPlayer> OnPlayerConnect;
+        public abstract event Action<NetworkPlayer> OnPlayerDisconnect;
 
         public abstract bool IsConnected
         {

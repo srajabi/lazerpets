@@ -19,6 +19,8 @@ namespace Networking
         }
 
         public override event Action OnActivePlayersUpdated;
+        public override event Action<NetworkPlayer> OnPlayerConnect;
+        public override event Action<NetworkPlayer> OnPlayerDisconnect;
 
         public override bool IsConnected => client.isConnected;
 
@@ -65,6 +67,7 @@ namespace Networking
                         ID = playerData.id
                     };
                     activePlayers.Add(existingPlayer);
+                    OnPlayerConnect?.Invoke(existingPlayer);
                 }
                 existingPlayer.Name = playerData.Name;
 
@@ -79,6 +82,8 @@ namespace Networking
 
         public override void Shutdown()
         {
+            OnPlayerDisconnect = null;
+            OnPlayerConnect = null;
             OnActivePlayersUpdated = null;
 
             if (client == null)

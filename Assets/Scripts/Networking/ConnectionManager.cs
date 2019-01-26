@@ -20,6 +20,8 @@ namespace Networking
         public event Action<NetworkPlayer> OnPlayerDisconnect;
         public event Action OnActivePlayersUpdated;
 
+        public string ServerAddress = "localhost";
+
         public ConnectionMode connectionMode
         {
             private set;
@@ -29,8 +31,10 @@ namespace Networking
         public IEnumerator Initialize()
         {
 
-            activeConnection = new ClientConnection("localhost");
+            activeConnection = new ClientConnection(ServerAddress);
             activeConnection.OnActivePlayersUpdated += ForwardOnActivePlayersUpdated;
+            activeConnection.OnPlayerConnect += ForwardOnPlayerConnect;
+            activeConnection.OnPlayerDisconnect += ForwardOnPlayerDisconnect;
 
             yield return activeConnection.Initialize();
 
@@ -44,6 +48,8 @@ namespace Networking
 
                 activeConnection = new ServerConnection();
                 activeConnection.OnActivePlayersUpdated += ForwardOnActivePlayersUpdated;
+                activeConnection.OnPlayerConnect += ForwardOnPlayerConnect;
+                activeConnection.OnPlayerDisconnect += ForwardOnPlayerDisconnect;
 
                 yield return activeConnection.Initialize();
 
@@ -55,6 +61,16 @@ namespace Networking
 
 
 
+        }
+
+        private void ForwardOnPlayerDisconnect(NetworkPlayer obj)
+        {
+            OnPlayerDisconnect?.Invoke(obj);
+        }
+
+        private void ForwardOnPlayerConnect(NetworkPlayer obj)
+        {
+            OnPlayerConnect?.Invoke(obj);
         }
 
         private void ForwardOnActivePlayersUpdated()

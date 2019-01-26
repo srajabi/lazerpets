@@ -25,6 +25,8 @@ namespace Networking
         public override NetworkPlayer[] ActivePlayers => activePlayers.ToArray();
 
         public override event Action OnActivePlayersUpdated;
+        public override event Action<NetworkPlayer> OnPlayerConnect;
+        public override event Action<NetworkPlayer> OnPlayerDisconnect;
 
         public override IEnumerator Initialize()
         {
@@ -44,6 +46,8 @@ namespace Networking
 
             activePlayers.Add(CurrentPlayer);
 
+            OnPlayerConnect?.Invoke(CurrentPlayer);
+
             UpdateActivePlayers();
 
             yield break;
@@ -54,6 +58,12 @@ namespace Networking
             Debug.Log("Server OnClientDisconnected" + obj.address + "connectionID " + obj.connectionId);
 
             var player = activePlayers.Where(p => p.Connection == obj).First();
+
+            OnPlayerDisconnect?.Invoke(player);
+
+            //TODO Notify clients
+
+
             activePlayers.Remove(player);
 
             UpdateActivePlayers();
@@ -93,6 +103,10 @@ namespace Networking
 
         public override void Shutdown()
         {
+            OnPlayerDisconnect = null;
+            OnPlayerConnect = null;
+            OnActivePlayersUpdated = null;
+
             if (networkServerSimple == null)
             {
                 return;
@@ -101,6 +115,7 @@ namespace Networking
             networkServerSimple.DisconnectAllConnections();
             networkServerSimple.Stop();
             networkServerSimple = null;
+
             _isConnected = false;
         }
 

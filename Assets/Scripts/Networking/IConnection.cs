@@ -7,6 +7,9 @@ namespace Networking
     {
         IEnumerator Initialize();
         event Action OnActivePlayersUpdated;
+        event Action<NetworkPlayer> OnPlayerConnect;
+        event Action<NetworkPlayer> OnPlayerDisconnect;
+
         NetworkPlayer[] ActivePlayers
         {
             get;
