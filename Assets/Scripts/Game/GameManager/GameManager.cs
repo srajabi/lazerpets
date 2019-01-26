@@ -1,22 +1,27 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
-using UnityEngine.Networking;
+using System.Collections.Generic;
+using System;
 
 namespace Game
 {
     public class GameManager : MonoBehaviour
     {
+        public bool Initialized { get; private set; }
+        public event EventHandler OnInitialized;
+
 		private Player[] players;
-
-		public event EventHandler<GameOutcomeEventArgs> OnGameEnded;
-
+        public IEnumerable<Player> Players { get { return players; } }
+        
 		ConnectionManager connectionManager;
 
-		public IEnumerator Start()
+        public void Awake()
         {
-			connectionManager = new ConnectionManager();
+            connectionManager = new ConnectionManager();
+        }
 
+        public IEnumerator Start()
+        {
 			yield return connectionManager.Initialize();
 
 			//var client = new NetworkClient();
@@ -29,42 +34,24 @@ namespace Game
 			//}         
 
             InitializeGame();
+
+            Initialized = true;
+            OnInitialized?.Invoke(this, EventArgs.Empty);
         }
 
 		public void Update()
 		{
 			connectionManager.Update();
-
 		}
 
 		private void InitializeGame()
         {
             FindPlayers();
-            for (int i = 0; i < players.Length; i++)
-            {
-                InitializePlayer(players[i]);
-            }
         }
 
         private void FindPlayers()
         {
             players = FindObjectsOfType<Player>();
-        }
-
-        private void InitializePlayer(Player player)
-        {
-            player.Health.OnModified += OnHealthModified;
-            player.Health.OnDeath += OnDeath;
-        }
-
-        private void OnDeath(object sender, HealthEventArgs e)
-        {
-            Debug.LogErrorFormat("Player {0} died thanks to {1}.", e.Causee.GetName(), e.Causer.GetName());
-        }
-
-        private void OnHealthModified(object sender, HealthEventArgs e)
-        {
-            Debug.LogErrorFormat("Player {0} took some damage from {1}.", e.Causee.GetName(), e.Causer.GetName());
         }
     }
 }
