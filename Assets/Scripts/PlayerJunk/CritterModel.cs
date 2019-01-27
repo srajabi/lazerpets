@@ -17,7 +17,7 @@ namespace Game
 
         public void Update()
         {
-            Vector3 eulerAngles = controller.Mover.Head.transform.eulerAngles;
+            Vector3 eulerAngles = controller.Mover.GetHead().transform.eulerAngles;
             eulerAngles = new Vector3(0, eulerAngles.y, 0);
             transform.rotation = Quaternion.Euler(eulerAngles);
         }

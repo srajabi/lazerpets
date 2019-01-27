@@ -7,7 +7,7 @@ public class CritterController : MonoBehaviour
     [SerializeField] CritterAudioManager audioManager;
 
     public IInputGrabber localInputGrabber;
-    public CritterMover Mover { get; private set; }
+    public ICritterMover Mover { get; private set; }
 
     public bool IsServer;
     internal CritterInputPacket? InputPacketOveride;
