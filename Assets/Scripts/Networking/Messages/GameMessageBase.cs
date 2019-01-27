@@ -3,10 +3,9 @@ using UnityEngine.Networking;
 
 namespace Networking
 {
-    public class PlayerDamageMessage : MessageBase
+    public class GameMessageBase : MessageBase
     {
-        public int id;
-        public int damage;
+        public int Id;
+        public short Type;
     }
-
 }

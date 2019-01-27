@@ -17,10 +17,10 @@ namespace Networking
 
         public IEnumerable<NetworkPlayer> ActivePlayers
         {
-            get { return activeConnection.ActivePlayers; }
+            get { return ActiveConnection.ActivePlayers; }
         }
 
-        private IConnection activeConnection;
+        public IConnection ActiveConnection;
 
         public event Action<NetworkPlayer> OnPlayerConnect;
         public event Action<NetworkPlayer> OnPlayerDisconnect;
@@ -35,29 +35,29 @@ namespace Networking
 
         public IEnumerator Initialize()
         {
-            activeConnection = new ClientConnection(serverAddress);
-            activeConnection.OnActivePlayersUpdated += ForwardOnActivePlayersUpdated;
-            activeConnection.OnPlayerConnect += ForwardOnPlayerConnect;
-            activeConnection.OnPlayerDisconnect += ForwardOnPlayerDisconnect;
+            ActiveConnection = new ClientConnection(serverAddress);
+            ActiveConnection.OnActivePlayersUpdated += ForwardOnActivePlayersUpdated;
+            ActiveConnection.OnPlayerConnect += ForwardOnPlayerConnect;
+            ActiveConnection.OnPlayerDisconnect += ForwardOnPlayerDisconnect;
 
-            yield return activeConnection.Initialize();
+            yield return ActiveConnection.Initialize();
 
-            if (activeConnection.IsConnected)
+            if (ActiveConnection.IsConnected)
             {
                 connectionMode = ConnectionMode.CLIENT;
             }
             else
             {
-                activeConnection.Shutdown();
+                ActiveConnection.Shutdown();
 
-                activeConnection = new ServerConnection();
-                activeConnection.OnActivePlayersUpdated += ForwardOnActivePlayersUpdated;
-                activeConnection.OnPlayerConnect += ForwardOnPlayerConnect;
-                activeConnection.OnPlayerDisconnect += ForwardOnPlayerDisconnect;
+                ActiveConnection = new ServerConnection();
+                ActiveConnection.OnActivePlayersUpdated += ForwardOnActivePlayersUpdated;
+                ActiveConnection.OnPlayerConnect += ForwardOnPlayerConnect;
+                ActiveConnection.OnPlayerDisconnect += ForwardOnPlayerDisconnect;
 
-                yield return activeConnection.Initialize();
+                yield return ActiveConnection.Initialize();
 
-                if (activeConnection.IsConnected)
+                if (ActiveConnection.IsConnected)
                 {
                     connectionMode = ConnectionMode.SERVER;
                 }
@@ -81,9 +81,9 @@ namespace Networking
 
         public void Update()
         {
-            if (activeConnection != null)
+            if (ActiveConnection != null)
             {
-                activeConnection.Update();
+                ActiveConnection.Update();
             }
         }
     }

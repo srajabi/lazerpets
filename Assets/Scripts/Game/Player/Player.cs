@@ -19,6 +19,7 @@ namespace Game
             Score = GetComponentInChildren<PlayerScore>(true);
             CritterController = GetComponentInChildren<CritterController>(true);
             Effects = GetComponentInChildren<Effects>(true);
+            Effects.Player = this;
         }
 
         internal void Initialize(NetworkPlayer netPlayer)

@@ -17,7 +17,7 @@ namespace Game
             if (time < lastApplication + Interval)
                 return;
 
-            if (Apply(collision.gameObject))
+            if (Apply(collision))
             {
                 lastApplication = time;
             }

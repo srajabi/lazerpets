@@ -34,6 +34,7 @@ namespace Networking
 
             networkServerSimple.OnClientConnected += OnClientConnected;
             networkServerSimple.OnClientDisconnected += OnClientDisconnected;
+            networkServerSimple.RegisterHandler(GameMsgType.Effects, HandleEffectReceived);
 
             networkServerSimple.Initialize();
             networkServerSimple.Listen(CONNECTION_PORT);
@@ -52,6 +53,17 @@ namespace Networking
             UpdateActivePlayers();
 
             yield break;
+        }
+
+
+        private void HandleEffectReceived(NetworkMessage netMsg)
+        {
+            Debug.LogError("HandleEffectReceived");
+            var message = netMsg.ReadMessage<PlayerEffectMessage>();
+            var player = activePlayers.Find(p => p.ID == message.Id);
+            player.Player.Effects.ApplyEffect(message.Effect,
+                                            message.Point,
+                                            message.Normal);
         }
 
         private void OnClientDisconnected(NetworkConnection obj)
@@ -146,6 +158,28 @@ namespace Networking
             
         }
 
+        public override void SendMessage<T>(T msg)
+        {
+            GameMessageBase gameMsg = msg as GameMessageBase;
+            var player = activePlayers.Find(p => p.ID == gameMsg.Id);
+
+            if(player == CurrentPlayer)
+            {
+                if (gameMsg is PlayerEffectMessage)
+                {
+                    PlayerEffectMessage effectMsg = gameMsg as PlayerEffectMessage;
+                    Game.GameManager.Instance.
+                        GetPlayer(player.ID).
+                        Effects.
+                        ApplyEffect(effectMsg.Effect,
+                            effectMsg.Point,
+                            effectMsg.Normal);
+                    return;
+                }
+            }
+
+            player.Connection.Send(gameMsg.Type, msg);
+        }
     }
 
 }

@@ -8,6 +8,24 @@ namespace Game
 {
     public class GameManager : MonoBehaviour
     {
+        static GameManager instance;
+        public static GameManager Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = FindObjectOfType<GameManager>();
+                }
+                if (instance == null)
+                {
+                    GameObject go = new GameObject();
+                    instance = go.AddComponent<GameManager>();
+                }
+                return instance;
+            }
+        }
+
         public bool Initialized { get; private set; }
         public event EventHandler OnInitialized;
         
@@ -17,7 +35,7 @@ namespace Game
         [SerializeField]
         private Player PlayerPrefab;
 
-        private ConnectionManager connectionManager;
+        public ConnectionManager ConnectionManager;
         private GameSpawner spawner;
 
         private Dictionary<Networking.NetworkPlayer, Player> NetworkToGameMap = new Dictionary<Networking.NetworkPlayer, Player>();
@@ -29,7 +47,7 @@ namespace Game
 
         private IEnumerator InitializeAsync(ConnectionManager connectionManager)
         {
-            this.connectionManager = connectionManager ?? throw new ArgumentNullException(nameof(connectionManager));
+            this.ConnectionManager = connectionManager ?? throw new ArgumentNullException(nameof(connectionManager));
             spawner = new GameSpawner(this);
 
             connectionManager.OnPlayerConnect += OnPlayerConnect;
@@ -88,7 +106,7 @@ namespace Game
         public void OnActivePlayersUpdated()
 		{
             Debug.Log("OnActivePlayersUpdated");
-            foreach (Networking.NetworkPlayer player in connectionManager.ActivePlayers)
+            foreach (Networking.NetworkPlayer player in ConnectionManager.ActivePlayers)
             {
                 Debug.Log("OnActivePlayersUpdated Player #" + player.ID + "(" + player.Name + ")");
             }
@@ -98,7 +116,7 @@ namespace Game
 		{
             if (Initialized)
             {
-                connectionManager.Update();
+                ConnectionManager.Update();
             }
         }
 
@@ -110,6 +128,18 @@ namespace Game
         private void FindPlayers()
         {
             players = FindObjectsOfType<Player>();
+        }
+
+        public Player GetPlayer(int id)
+        {
+            foreach(Player p in players)
+            {
+                if(p.NetworkPlayer.ID == id)
+                {
+                    return p;
+                }
+            }
+            return null;
         }
     }
 }
