@@ -16,7 +16,7 @@ public class GameCanvasController : MonoBehaviour
 
     private void Start()
     {
-        disconnectPrompt.text = "Press \"esc\" to Disconnect";
+        disconnectPrompt.text = "Press \"Ctrl+ Q\" to Disconnect";
     }
 
     public void Initialize(string ipAddress, Camera tvCamera, Camera uiCamera, Camera gameCamera, TVCanvasController tvCanvas)
@@ -35,7 +35,7 @@ public class GameCanvasController : MonoBehaviour
 
     private void Update()
     {
-        if (initialized && Input.GetKeyDown(KeyCode.Escape))
+        if (initialized && Input.GetKeyDown(KeyCode.Q) && Input.GetKeyDown(KeyCode.LeftControl))
         {
             Disconnect();
         }

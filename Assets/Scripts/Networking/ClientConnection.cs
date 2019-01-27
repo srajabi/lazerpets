@@ -36,6 +36,7 @@ namespace Networking
 
             client.RegisterHandler(GameMsgType.UpdateActivePlayers, HandleUpdateActivePlayers);
             client.RegisterHandler(GameMsgType.PlayerDisconnect, HandlePlayerDisconnect);
+            client.RegisterHandler(GameMsgType.DamageReceived, HandleDamageReceived);
 
             client.Connect(serverAddress, CONNECTION_PORT);
 
@@ -51,6 +52,13 @@ namespace Networking
             {
                 Debug.Log("Client Not Connected!");
             }
+        }
+
+        private void HandleDamageReceived(NetworkMessage netMsg)
+        {
+            var message = netMsg.ReadMessage<PlayerDamageMessage>();
+            var player = activePlayers.Find(p => p.ID == message.id);
+            player.Player.Effects.InstantiateDamageEffect(message.damage);
         }
 
         private void HandlePlayerDisconnect(NetworkMessage netMsg)
@@ -88,8 +96,6 @@ namespace Networking
 
                 Debug.Log("PLAYER #" + playerData.ID + " name" + playerData.Name);
             }
-
-
 
 
             OnActivePlayersUpdated?.Invoke();
