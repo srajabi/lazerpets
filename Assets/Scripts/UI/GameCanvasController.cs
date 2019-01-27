@@ -35,7 +35,7 @@ public class GameCanvasController : MonoBehaviour
 
     private void Update()
     {
-        if (initialized && Input.GetKeyDown(KeyCode.Escape))
+        if (initialized && Input.GetKeyDown(KeyCode.Q))
         {
             Disconnect();
         }

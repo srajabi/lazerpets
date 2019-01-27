@@ -138,11 +138,11 @@ MonoBehaviour:
   critterConfig:
     extraHeight: 0.19
     suspensionRadiusRatio: 0.9
-    maxSpeed: 0
-    walkAccel: 0
-    autoDecel: 0
-    jumpVelY: 0
-    gravityMult: 0
+    maxSpeed: 3
+    walkAccel: 20
+    autoDecel: 1
+    jumpVelY: 7
+    gravityMult: 2
     attackKind: 0
   audioManager: {fileID: 2888584351981505547}
 --- !u!54 &1198356025567729422
