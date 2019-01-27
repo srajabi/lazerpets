@@ -17,17 +17,34 @@ namespace Game
             Score = GetComponentInChildren<PlayerScore>(true);
         }
 
-        internal void Initialize(NetworkPlayer netPlayer)
+        internal void Initialize(NetworkPlayer netPlayer, IInputGrabber localInputGrabber, bool isServer)
         {
             NetworkPlayer = netPlayer;
             name = string.Format("[Player] {0}", netPlayer.Name);
             netPlayer.Player = this;
+
+            CritterController.IsServer = isServer;
+            CritterController.OnCritterStatePacket += netPlayer.ForwardCritterStatePacket;
+            CritterController.localInputGrabber = (netPlayer.IsSelf) ? localInputGrabber : null;
+
+            NetworkPlayer.OnIncommingCritterStatePacket += CritterController.UpdateViaCritterStatePacket;
+
+
+            if (!isServer && netPlayer.IsSelf)
+            {
+                CritterController.OnCritterInputPacket += NetworkPlayer.PostCritterInputPacket;
+            }
 
             Debug.Log("Player Initialized: " + name + " isSelf" + netPlayer.IsSelf);
 
             GetComponent<CharacterInstantiator>().Create();
             CritterController = GetComponentInChildren<CritterController>(true);
             Effects = GetComponentInChildren<Effects>(true);
+        }
+
+        internal void SetInputPacket(CritterInputPacket critterInputPacket)
+        {
+            CritterController.InputPacketOveride = critterInputPacket;
         }
     }
 }

@@ -6,7 +6,10 @@ namespace Networking
     {
         public const short UpdateActivePlayers = MsgType.Highest + 1;
         public const short PlayerDisconnect = MsgType.Highest + 2;
-        public const short DamageReceived = MsgType.Highest + 3;
+
+        public const short UpdateCritterState = MsgType.Highest + 3;
+        public const short UpdateCritterInput = MsgType.Highest + 4;
+        public const short DamageReceived = MsgType.Highest + 5;
     }
 
 }

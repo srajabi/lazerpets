@@ -141,13 +141,19 @@ public class CritterMover
         return new CritterStatePacket {
             position = newPosition,
             velocity = rb.velocity,
+            rotation = Head.transform.rotation
         };
     }
 
-    public void TakeStateFromServer(CritterStatePacket state)
+    public void TakeStateFromServer(CritterStatePacket state, bool setRotation = true)
     {
         rb.MovePosition(state.position);
         rb.velocity = state.velocity;
+
+        if (setRotation)
+        {
+            Head.transform.rotation = state.rotation;
+        }
     }
 
     static Vector2 cameraBob(float t)
