@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1076331524129721552}
   - component: {fileID: 5527528252566252079}
   - component: {fileID: 2595058544049315165}
+  - component: {fileID: 4795780555447221040}
   m_Layer: 0
   m_Name: '[Player]'
   m_TagString: Untagged
@@ -91,3 +92,18 @@ MonoBehaviour:
   Dog: {fileID: 483043443578481922, guid: 57c12086a2e951049a3437ebb26d9cf4, type: 3}
   Bird: {fileID: 8842120031926261354, guid: d287ffb02fe2f4b838320208267a5930, type: 3}
   Parent: {fileID: 4869449804589213423}
+--- !u!114 &4795780555447221040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4869449804589213420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9254679cc9d2843ce9ab0df9f4b4aeed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Player: {fileID: 0}
+  DamageLifetime: 1
+  DamageEffect: {fileID: 194062, guid: 8c27aeead6d968e4ba986702d6b84335, type: 3}

@@ -36,8 +36,8 @@ namespace Networking
 
             client.RegisterHandler(GameMsgType.UpdateActivePlayers, HandleUpdateActivePlayers);
             client.RegisterHandler(GameMsgType.PlayerDisconnect, HandlePlayerDisconnect);
+            client.RegisterHandler(GameMsgType.Effects, HandleEffectReceived);
             client.RegisterHandler(GameMsgType.UpdateCritterState, HandleUpdateCritterState);
-            client.RegisterHandler(GameMsgType.DamageReceived, HandleDamageReceived);
 
             client.Connect(serverAddress, CONNECTION_PORT);
 
@@ -55,6 +55,12 @@ namespace Networking
             }
         }
 
+        public override void SendMessage<T>(T msg)
+        {
+            GameMessageBase gameMsg = msg as GameMessageBase;
+            client.Send(gameMsg.Type, gameMsg);
+        }
+
         private void HandleUpdateCritterState(NetworkMessage netMsg)
         {
             var message = netMsg.ReadMessage<CritterStatePacketMessage>();
@@ -65,11 +71,14 @@ namespace Networking
             player.HandleCritterStatePacket(message.critterStatePacket);
         }
 
-        private void HandleDamageReceived(NetworkMessage netMsg)
+        private void HandleEffectReceived(NetworkMessage netMsg)
         {
-            var message = netMsg.ReadMessage<PlayerDamageMessage>();
-            var player = activePlayers.Find(p => p.ID == message.id);
-            player.Player.Effects.InstantiateDamageEffect(message.damage);
+            Debug.LogError("HandleEffectReceived");
+            var message = netMsg.ReadMessage<PlayerEffectMessage>();
+            var player = activePlayers.Find(p => p.ID == message.Id);
+            player.Player.Effects.ApplyEffect(message.Effect,
+                                        message.Point,
+                                        message.Normal);
         }
 
         private void HandlePlayerDisconnect(NetworkMessage netMsg)
