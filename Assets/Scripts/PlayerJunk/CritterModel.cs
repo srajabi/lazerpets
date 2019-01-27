@@ -9,7 +9,7 @@ namespace Game
 
         public void Start()
         {
-            //gameObject.SetActive(!Player.NetworkPlayer.IsSelf);
+            gameObject.SetActive(!Player.NetworkPlayer.IsSelf);
             controller = GetComponentInParent<CritterController>();
 
             //rotationDifference = controller.Mover.NeckBone.transform.rotation * Quaternion.Inverse(controller.Mover.Head.transform.rotation);
