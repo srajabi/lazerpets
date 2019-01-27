@@ -1,6 +1,4 @@
-﻿using System;
-using Networking;
-using UnityEngine;
+﻿using UnityEngine;
 using NetworkPlayer = Networking.NetworkPlayer;
 
 namespace Game
