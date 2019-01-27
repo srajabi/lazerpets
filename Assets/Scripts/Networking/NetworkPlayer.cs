@@ -46,7 +46,6 @@ namespace Networking
 
         public event Action<CritterStatePacket> PostCritterStatePacket;
 
-
         internal void ForwardCritterStatePacket(CritterStatePacket obj)
         {
             PostCritterStatePacket?.Invoke(obj);

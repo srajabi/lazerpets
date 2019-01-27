@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Game;
 using System.Linq;
 using UnityEngine;
 
@@ -10,6 +9,7 @@ public class BirdShit : MonoBehaviour
     [SerializeField] float Drag = 10f;
     [SerializeField] float ExplosionRadius = 2f;
     [SerializeField] float ExplosionForce = 100f;
+    [SerializeField] float Damage = 10f;
 
     float ttl = 10f;
     float delay = 0.1f;
@@ -60,6 +60,12 @@ public class BirdShit : MonoBehaviour
             if (rbInExplosion != null)
             {
                 rbInExplosion.AddExplosionForce(ExplosionForce, transform.position, ExplosionRadius);
+            }
+
+            var player = c.gameObject.GetComponentInParent<Player>();
+            if (player != null)
+            {
+                player.Health.Modify(-Damage, new Damager(gameObject));
             }
         }
 
