@@ -3,24 +3,24 @@
 
 public class BirdController : MonoBehaviour
 {
-    [SerializeField] float MouseYawSensitivity = 1f;
-    [SerializeField] float MousePitchSensitivity = 1f;
-    [SerializeField] float KeyRollSensitivity = 1f;
-    [SerializeField] float RollYawTrim = 0.5f;
-    [SerializeField] float PitchClampDegrees = 45f;
-    [SerializeField] float RollClampDegrees = 45f;
+    [SerializeField] readonly float MouseYawSensitivity = 1f;
+    [SerializeField] readonly float MousePitchSensitivity = 1f;
+    [SerializeField] readonly float KeyRollSensitivity = 1f;
+    [SerializeField] readonly float RollYawTrim = 0.5f;
+    [SerializeField] readonly float PitchClampDegrees = 45f;
+    [SerializeField] readonly float RollClampDegrees = 45f;
 
-    [SerializeField] float FlapFrequency = 3f;
-    [SerializeField] float Mass = 0.1f;
-    [SerializeField] float DragMagic = 0.1f;
-    [SerializeField] float LiftMagic = 0.01f;
-    [SerializeField] float GlideMagic = 10f;
-    [SerializeField] float FlapThrustToLiftRatioPressingW = .7f;
-    [SerializeField] float FlapThrustToLiftRatioPressingNotPressingW = .3f;
-    [SerializeField] float FlapPower = 5f;
+    [SerializeField] readonly float FlapFrequency = 3f;
+    [SerializeField] readonly float Mass = 0.1f;
+    [SerializeField] readonly float DragMagic = 0.1f;
+    [SerializeField] readonly float LiftMagic = 0.01f;
+    [SerializeField] readonly float GlideMagic = 10f;
+    [SerializeField] readonly float FlapThrustToLiftRatioPressingW = .7f;
+    [SerializeField] readonly float FlapThrustToLiftRatioPressingNotPressingW = .3f;
+    [SerializeField] readonly float FlapPower = 5f;
 
-    [SerializeField] float SizeOfShitRelativeToBird = .5f;
-    [SerializeField] float ShitsPerMinute = 240f;
+    [SerializeField] readonly float SizeOfShitRelativeToBird = .5f;
+    [SerializeField] readonly float ShitsPerMinute = 240f;
 
     Rigidbody rb;
     float _yawDegress;
@@ -29,8 +29,32 @@ public class BirdController : MonoBehaviour
 
     float timeOfLastBowelMovement = 0f;
 
+    enum STATE { FLYING, STANDING}
+
+    STATE currentState;
+    STATE CurrentState
+    {
+        get
+        {
+            return currentState;
+        }
+        set
+        {
+            if (currentState != value)
+            {
+                currentState = value;
+
+                if (currentState == STATE.STANDING)
+                {
+                    ResetRB();
+                }
+            }
+        }
+    }
+
     void Awake()
     {
+        CurrentState = STATE.FLYING;
         Cursor.lockState = CursorLockMode.Locked;
         rb = gameObject.GetComponent<Rigidbody>();
         rb.useGravity = false;
@@ -39,8 +63,28 @@ public class BirdController : MonoBehaviour
 
     void FixedUpdate()
     {
+        UpdateState();
+        DoMove();
+    }
+
+    void UpdateState() // todo this is buggy and sets to standing when close by not touching
+    {
+        RaycastHit hit;
+        Ray downRay = new Ray(transform.position, -Vector3.up);
+        bool closeToSomethingToStandOn = Physics.Raycast(downRay, out hit) && hit.distance < 0.7f;
+        CurrentState = closeToSomethingToStandOn ? STATE.STANDING : STATE.FLYING;
+    }
+
+    void ResetRB() // todo this maybe causing problems
+    {
+        rb.angularVelocity = Vector3.zero;
+        rb.velocity = Vector3.zero;
+    }
+
+    void DoMove()
+    {
         var orientation = UpdateOrientation();
-        transform.rotation = orientation;
+        rb.MoveRotation(orientation);
 
         var angleOfAttack = Mathf.Acos(Vector3.Dot(rb.velocity.normalized, transform.forward.normalized)) * Mathf.Rad2Deg;
 
@@ -57,7 +101,7 @@ public class BirdController : MonoBehaviour
             flapForce = Mathf.Abs(flapForce);
             var flapThrustToLiftRatio = Input.GetKey(KeyCode.W) ? FlapThrustToLiftRatioPressingW : FlapThrustToLiftRatioPressingNotPressingW;
             rb.AddForce(transform.forward * flapForce * flapThrustToLiftRatio);
-            rb.AddForce(transform.up * flapForce * (1- flapThrustToLiftRatio));
+            rb.AddForce(transform.up * flapForce * (1 - flapThrustToLiftRatio));
         }
 
         var dragVector = rb.velocity * -drag;
@@ -103,6 +147,7 @@ public class BirdController : MonoBehaviour
         _pitchDegrees -= Input.GetAxis("Mouse Y") * MousePitchSensitivity;
         _pitchDegrees = Mathf.Clamp(_pitchDegrees, -PitchClampDegrees, PitchClampDegrees);
 
+        _rollDegrees = CurrentState == STATE.STANDING ? 0f : _rollDegrees; // todo this is dumb
         return Quaternion.Euler(_pitchDegrees, _yawDegress, _rollDegrees);
     }
 }
