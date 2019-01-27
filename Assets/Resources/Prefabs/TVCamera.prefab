@@ -8406,6 +8406,7 @@ GameObject:
   - component: {fileID: 6992539568223380363}
   - component: {fileID: 6992539568223380361}
   - component: {fileID: 6992539568223380362}
+  - component: {fileID: 2845463991539683473}
   m_Layer: 9
   m_Name: TVCamera
   m_TagString: Untagged
@@ -8478,6 +8479,19 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6992539568223380364}
   m_Enabled: 1
+--- !u!114 &2845463991539683473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6992539568223380364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff26db721962cdf4a8edcdfa9a767d2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: f55fb88ebc29d1d49a492f3c813c20bb, type: 2}
 --- !u!1 &8877240429358376585
 GameObject:
   m_ObjectHideFlags: 0
