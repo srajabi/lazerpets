@@ -280,7 +280,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 3383
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -347,22 +347,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a791e5c1b9a74d9988743331150920e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MouseYawSensitivity: 1
-  MousePitchSensitivity: 1
-  KeyRollSensitivity: 1
-  RollYawTrim: 0.5
-  PitchClampDegrees: 45
-  RollClampDegrees: 45
-  FlapFrequency: 3
-  Mass: 0.1
-  DragMagic: 0.08
-  LiftMagic: 0.01
-  GlideMagic: 10
-  FlapThrustToLiftRatioPressingW: 0.7
-  FlapThrustToLiftRatioPressingNotPressingW: 0.3
-  FlapPower: 5
-  SizeOfShitRelativeToBird: 0.5
-  ShitsPerMinute: 60
 --- !u!54 &7772378711642541791
 Rigidbody:
   m_ObjectHideFlags: 0
