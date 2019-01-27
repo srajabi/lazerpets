@@ -70,9 +70,11 @@ namespace Networking
                     continue;
                 }
 
+                //Debug.Log("SENDING CritterStatePacketMessage player#" + currentPlayer.ID + " p" + p.position + " v" + p.velocity);
+
                 player.Connection.Send(GameMsgType.UpdateCritterState, new CritterStatePacketMessage()
                 {
-                    ID = player.ID,
+                    ID = currentPlayer.ID,
                     critterStatePacket = p
                 });
             }
@@ -83,6 +85,9 @@ namespace Networking
             var inputPacket = netMsg.ReadMessage<CritterInputPacketMessage>();
 
             var player = activePlayers.Where(p => p.Connection == netMsg.conn).First();
+
+            Debug.Log("RECIV HandeUpdateCritterInput player#" + player.ID + "  " + inputPacket);
+
 
             player.Player.SetInputPacket(inputPacket.critterInputPacket);
 

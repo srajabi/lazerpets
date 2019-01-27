@@ -24,31 +24,42 @@ public class CritterController : MonoBehaviour
 
     private void Update()
     {
-        // Always use the local input grabber to drive the mover with UpdateImmediate
-        Mover.UpdateImmediate(localInputGrabber.UpdateImmediate());
+        if (localInputGrabber != null)
+        {
+            // Always use the local input grabber to drive the mover with UpdateImmediate
+            Mover.UpdateImmediate(localInputGrabber.UpdateImmediate());
+        }
     }
 
     public void UpdateViaCritterStatePacket(CritterStatePacket critterStatePacket)
     {
-        Mover.TakeStateFromServer(critterStatePacket);
+        Mover.TakeStateFromServer(critterStatePacket, true);
     }
 
     private void FixedUpdate()
     {
-        var inputPacket = localInputGrabber.UpdateTick();
-
-        OnCritterInputPacket?.Invoke(inputPacket);
-
-        if (IsServer)
+        CritterInputPacket? inputPacket = null;
+        if (localInputGrabber != null)
         {
-            var statePacket = Mover.UpdateTick(inputPacket);
+            inputPacket = localInputGrabber.UpdateTick();
+
+            OnCritterInputPacket?.Invoke(inputPacket.Value);
+        }
+
+        if (IsServer && inputPacket != null)
+        {
+            var statePacket = Mover.UpdateTick(inputPacket.Value);
             OnCritterStatePacket?.Invoke(statePacket);
         }
         else
         {
             if (InputPacketOveride != null)
             {
-                Mover.UpdateTick(InputPacketOveride.Value);
+                var statePacket = Mover.UpdateTick(InputPacketOveride.Value);
+                if (IsServer)
+                {
+                    OnCritterStatePacket?.Invoke(statePacket);
+                }
             }
         }
         // If we're the server do this but don't use input grabber, use the remote packet input packet

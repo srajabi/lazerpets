@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Game;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Networking
@@ -50,10 +51,6 @@ namespace Networking
         internal void ForwardCritterStatePacket(CritterStatePacket obj)
         {
             PostCritterStatePacket?.Invoke(obj);
-            //Connection.Send(GameMsgType.UpdateCritterState, new CritterStatePacketMessage()
-            //{
-            //    critterStatePacket = obj
-            //});
         }
 
         public NetworkPlayer()
@@ -82,6 +79,13 @@ namespace Networking
 
         internal void PostCritterInputPacket(CritterInputPacket obj)
         {
+            if (Connection == null)
+            {
+                return;
+            }
+
+            Debug.Log("PostCritterInputPacket Player#" + ID + " " + obj);
+
             Connection.Send(GameMsgType.UpdateCritterInput, new CritterInputPacketMessage()
             {
                 critterInputPacket = obj

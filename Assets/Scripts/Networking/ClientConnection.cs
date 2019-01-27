@@ -60,6 +60,8 @@ namespace Networking
             var message = netMsg.ReadMessage<CritterStatePacketMessage>();
             var player = activePlayers.Find(p => p.ID == message.ID);
 
+            //Debug.Log("SENDING CritterStatePacketMessage player#" + player.ID + " p" + message.critterStatePacket.position + " v" + message.critterStatePacket.velocity);
+
             player.HandleCritterStatePacket(message.critterStatePacket);
         }
 
@@ -93,7 +95,9 @@ namespace Networking
                         ID = playerData.ID,
                         Name = playerData.Name,
                         IsSelf = playerData.ID == client.connection.connectionId
+                       
                     };
+                    existingPlayer.Connection = (existingPlayer.IsSelf) ? client.connection : null;
                     activePlayers.Add(existingPlayer);
                     OnPlayerConnect?.Invoke(existingPlayer);
                 }

@@ -29,7 +29,7 @@ namespace Game
 
             CritterController.IsServer = isServer;
             CritterController.OnCritterStatePacket += netPlayer.ForwardCritterStatePacket;
-            CritterController.localInputGrabber = localInputGrabber;
+            CritterController.localInputGrabber = (netPlayer.IsSelf) ? localInputGrabber : null;
 
             NetworkPlayer.OnIncommingCritterStatePacket += CritterController.UpdateViaCritterStatePacket;
 
