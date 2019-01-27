@@ -9,6 +9,7 @@ public class BirdController : MonoBehaviour
     [SerializeField] float RollYawTrim = 0.5f;
     [SerializeField] float PitchClampDegrees = 45f;
     [SerializeField] float RollClampDegrees = 45f;
+
     [SerializeField] float FlapFrequency = 3f;
     [SerializeField] float Mass = 0.1f;
     [SerializeField] float DragMagic = 0.1f;
@@ -18,15 +19,20 @@ public class BirdController : MonoBehaviour
     [SerializeField] float FlapThrustToLiftRatioPressingNotPressingW = .3f;
     [SerializeField] float FlapPower = 5f;
 
+    [SerializeField] float SizeOfShitRelativeToBird = .5f;
+    [SerializeField] float ShitsPerMinute = 120f;
+
     Rigidbody rb;
     float _yawDegress;
     float _pitchDegrees;
     float _rollDegrees;
 
+    float timeOfLastBowelMovement = 0f;
+
     void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        rb = gameObject.AddComponent<Rigidbody>();
+        rb = gameObject.GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.mass = Mass;
     }
@@ -69,6 +75,16 @@ public class BirdController : MonoBehaviour
         {
             var forwardGlide = fallVelocity * glideRatio * GlideMagic;
             rb.AddForce(transform.forward * forwardGlide, ForceMode.VelocityChange);
+        }
+
+        bool readyForBM = Time.time - timeOfLastBowelMovement > ShitsPerMinute / 60;
+        if (Input.GetKey(KeyCode.Mouse0) && readyForBM)
+        {
+            timeOfLastBowelMovement = Time.time;
+            var shit = Instantiate(Resources.Load("Prefabs/BirdShit") as GameObject);
+            shit.transform.localScale = transform.localScale * SizeOfShitRelativeToBird;
+            var birdShit = shit.GetComponent<BirdShit>();
+            birdShit.SetInitialVelocity(rb.velocity);
         }
     }
 
