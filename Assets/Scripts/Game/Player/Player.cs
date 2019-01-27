@@ -25,23 +25,20 @@ namespace Game
             name = string.Format("[Player] {0}", netPlayer.Name);
             netPlayer.Player = this;
 
-            CritterController.IsServer = isServer;
-            CritterController.OnCritterStatePacket += netPlayer.ForwardCritterStatePacket;
-            CritterController.localInputGrabber = (netPlayer.IsSelf) ? localInputGrabber : null;
-
-            NetworkPlayer.OnIncommingCritterStatePacket += CritterController.UpdateViaCritterStatePacket;
-
-
-            if (!isServer && netPlayer.IsSelf)
-            {
-                CritterController.OnCritterInputPacket += NetworkPlayer.PostCritterInputPacket;
-            }
-
             Debug.Log("Player Initialized: " + name + " isSelf" + netPlayer.IsSelf);
 
             GetComponent<CharacterInstantiator>().Create();
             CritterController = GetComponentInChildren<CritterController>(true);
             Effects = GetComponentInChildren<Effects>(true);
+
+            CritterController.IsServer = isServer;
+            CritterController.OnCritterStatePacket += netPlayer.ForwardCritterStatePacket;
+            CritterController.localInputGrabber = (netPlayer.IsSelf) ? localInputGrabber : null;
+
+            if (!isServer && netPlayer.IsSelf)
+            {
+                CritterController.OnCritterInputPacket += NetworkPlayer.PostCritterInputPacket;
+            }
         }
 
         internal void SetInputPacket(CritterInputPacket critterInputPacket)

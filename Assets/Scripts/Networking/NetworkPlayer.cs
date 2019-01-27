@@ -44,7 +44,6 @@ namespace Networking
 
         public bool IsSelf { get; internal set; }
 
-        public event Action<CritterStatePacket> OnIncommingCritterStatePacket;
         public event Action<CritterStatePacket> PostCritterStatePacket;
 
 
@@ -74,6 +73,7 @@ namespace Networking
 
         internal void HandleCritterStatePacket(CritterStatePacket critterStatePacket)
         {
+            Debug.Log("HandleCritterStatePacket P#" + ID + " " + critterStatePacket.position);
             Player.CritterController.UpdateViaCritterStatePacket(critterStatePacket);
         }
 
