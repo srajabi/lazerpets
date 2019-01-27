@@ -1596,7 +1596,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4354987470868923490}
   - component: {fileID: 4835316015551507313}
-  - component: {fileID: 1713637519895564017}
+  - component: {fileID: 6434943895426486687}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -1714,7 +1714,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &1713637519895564017
+--- !u!114 &6434943895426486687
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1723,7 +1723,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1667700237623030661}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e55b132472bba4a45a1fd920b41d1c59, type: 3}
+  m_Script: {fileID: 11500000, guid: 87c98e05c45ab4226a6fb0c88dcdd4f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1837594682109922291
@@ -3235,7 +3235,7 @@ MonoBehaviour:
   CreditsButton: {fileID: 7326209097156629052}
   Quit: {fileID: 874711047073087052}
   GameCanvas: {fileID: 1592151162548652198}
-  AudioManager: {fileID: 1713637519895564017}
+  AudioManager: {fileID: 6434943895426486687}
 --- !u!114 &8190461041171866179
 MonoBehaviour:
   m_ObjectHideFlags: 0

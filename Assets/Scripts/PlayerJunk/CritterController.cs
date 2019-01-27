@@ -4,7 +4,7 @@ using UnityEngine;
 public class CritterController : MonoBehaviour
 {
     [SerializeField] CritterMoverConfig critterConfig;
-    [SerializeField] CatAudioManager audioManager;
+    [SerializeField] CritterAudioManager audioManager;
 
     public IInputGrabber localInputGrabber;
     public CritterMover Mover { get; private set; }

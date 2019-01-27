@@ -7,12 +7,11 @@ public interface IPlayerAudioManager
     void PlayProjectileAudio();
 }
 
-
 [RequireComponent(typeof(AudioSource))]
-public class CatAudioManager : MonoBehaviour, IPlayerAudioManager
+public class CritterAudioManager : MonoBehaviour, IPlayerAudioManager
 {
-    AudioSource AudioSource;
     [SerializeField] AudioClip[] attackClips;
+    [SerializeField] AudioSource AudioSource;
 
     public void PlayProjectileAudio()
     {
@@ -24,7 +23,6 @@ public class CatAudioManager : MonoBehaviour, IPlayerAudioManager
     // Start is called before the first frame update
     void Start()
     {
-        AudioSource = GetComponent<AudioSource>();
         AudioSource.clip = attackClips[0];
     }
 }
