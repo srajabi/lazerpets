@@ -6,15 +6,22 @@ public class CritterMoverConfig
 {
     public float extraHeight;
     public float suspensionRadiusRatio;
+
+    public float maxSpeed;
+    public float walkAccel;
+    public float autoDecel;
+    public float jumpVelY;
+    public float gravityMult;
+
     public AttackKind attackKind;
 }
 
 public class CritterMover
 {
-    public readonly GameObject Head;
     readonly GameObject critter;
     readonly CritterMoverConfig config;
 
+    readonly GameObject childHead;
     readonly GameObject childCamera;
     readonly Rigidbody rb;
     readonly float radius;
@@ -24,52 +31,69 @@ public class CritterMover
     int grounded;
     float cameraBobT;
 
-    public CritterMover(GameObject critter, CritterMoverConfig config)
+    public CritterMover(GameObject critter, CritterMoverConfig config, IPlayerAudioManager audioManager)
     {
         this.critter = critter;
         this.config = config;
 
         rb = critter.GetComponent<Rigidbody>();
         radius = critter.GetComponent<SphereCollider>().radius;
-        Head = critter.transform.Find("Head").gameObject;
+        childHead = critter.transform.Find("Head").gameObject;
         childCamera = critter.GetComponentInChildren<Camera>().gameObject;
         cameraBobT = 0;
         suspensionRadius = config.suspensionRadiusRatio * radius;
-        launcher = AttackLauncherFactory.Create(config.attackKind);
+        launcher = AttackLauncherFactory.Create(config.attackKind, audioManager);
     }
 
     public void UpdateImmediate(CritterInputPacket packet)
     {
         cameraBobT += rb.velocity.WithY(0).magnitude * 0.05f;
-        Head.transform.rotation = packet.headOrientation;
+        childHead.transform.rotation = packet.headOrientation;
         childCamera.transform.localPosition = 0.02f * cameraBob(cameraBobT);
     }
 
     public CritterStatePacket UpdateTick(CritterInputPacket packet)
     {
+        bool walking = false;
+
+        rb.velocity += Physics.gravity * config.gravityMult * Time.fixedDeltaTime;
+
+        var fwd = childHead.transform.forward.WithY(0).normalized;
+        var right = childHead.transform.right.WithY(0).normalized;
+
         if (packet.forward) {
-            rb.velocity += Head.transform.forward * 0.1f;
-        }
-        else if (packet.backward) {
-            rb.velocity += Head.transform.forward * -0.1f;
+            rb.velocity += fwd * config.walkAccel * Time.fixedDeltaTime;
+            walking = true;
+        } else if (packet.backward) {
+            rb.velocity -= fwd * config.walkAccel * Time.fixedDeltaTime;
+            walking = true;
         }
 
         if (packet.rightward) {
-            rb.velocity += Head.transform.right * 0.1f;
+            rb.velocity += right * config.walkAccel * Time.fixedDeltaTime;
+            walking = true;
+        } else if (packet.leftward) {
+            rb.velocity -= right * config.walkAccel * Time.fixedDeltaTime;
+            walking = true;
         }
-        else if (packet.leftward) {
-            rb.velocity += Head.transform.right * -0.1f;
+
+        var flatVel = rb.velocity.WithY(0);
+
+        if (flatVel.sqrMagnitude > config.maxSpeed * config.maxSpeed) {
+            flatVel = flatVel.normalized * config.maxSpeed;
         }
+
+        if (!walking) {
+            flatVel *= 0.5f;
+        }
+
+        rb.velocity = flatVel + Vector3.up * rb.velocity.y;
 
         if (packet.jump && grounded > 0) {
             grounded = 0;
-            rb.velocity += Vector3.up * 5;
+            rb.velocity = rb.velocity.WithY(config.jumpVelY);
         }
 
-        rb.velocity = rb.velocity.WithX(rb.velocity.x * 0.8f);
-        rb.velocity = rb.velocity.WithZ(rb.velocity.z * 0.8f);
-
-        rb.velocity += Physics.gravity * Time.fixedDeltaTime;
         var newPosition = rb.position + rb.velocity * Time.fixedDeltaTime;
 
         if (grounded > 0) grounded--;
