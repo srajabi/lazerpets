@@ -5,12 +5,12 @@ namespace Game
 {
     public class DamageOnCollisionEnter : BaseDamageApplier
     {
-        public event EventHandler OnCollision;
+        public event Action<bool> OnCollision;
 
         public void OnCollisionEnter(Collision collision)
         {
-            Apply(collision);
-            OnCollision?.Invoke(this, EventArgs.Empty);
+            bool hitPlayer = Apply(collision);
+            OnCollision?.Invoke(hitPlayer);
         }
     }
 }
