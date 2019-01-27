@@ -4,9 +4,10 @@ using UnityEngine;
 public class CritterController : MonoBehaviour
 {
     [SerializeField] CritterMoverConfig critterConfig;
+    [SerializeField] CatAudioManager audioManager;
 
     public IInputGrabber localInputGrabber;
-    CritterMover critterMover;
+    public CritterMover Mover { get; private set; }
 
     public bool IsServer;
     internal CritterInputPacket? InputPacketOveride;
@@ -17,18 +18,19 @@ public class CritterController : MonoBehaviour
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        critterMover = new CritterMover(gameObject, critterConfig);
+        //inputGrabber = new CritterInputGrabber(mouseSensitivity);
+        Mover = new CritterMover(gameObject, critterConfig, audioManager);
     }
 
     private void Update()
     {
         // Always use the local input grabber to drive the mover with UpdateImmediate
-        critterMover.UpdateImmediate(localInputGrabber.UpdateImmediate());
+        Mover.UpdateImmediate(localInputGrabber.UpdateImmediate());
     }
 
     public void UpdateViaCritterStatePacket(CritterStatePacket critterStatePacket)
     {
-        critterMover.TakeStateFromServer(critterStatePacket);
+        Mover.TakeStateFromServer(critterStatePacket);
     }
 
     private void FixedUpdate()
@@ -39,7 +41,7 @@ public class CritterController : MonoBehaviour
 
         if (IsServer)
         {
-            var statePacket = critterMover.UpdateTick(inputPacket);
+            var statePacket = Mover.UpdateTick(inputPacket);
             OnCritterStatePacket?.Invoke(statePacket);
         }
         else
