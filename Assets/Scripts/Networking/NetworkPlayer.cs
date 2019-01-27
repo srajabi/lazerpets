@@ -53,7 +53,7 @@ namespace Networking
 
         public NetworkPlayer()
         {
-            CharacterType = (CharacterTypes)UnityEngine.Random.Range(1, 3);
+            CharacterType = CharacterTypes.Cat; //(CharacterTypes)UnityEngine.Random.Range(1, 3);
 
             switch (CharacterType)
             {
@@ -85,7 +85,7 @@ namespace Networking
 
             Debug.Log("PostCritterInputPacket Player#" + ID + " " + obj);
 
-            Connection.Send(GameMsgType.UpdateCritterInput, new CritterInputPacketMessage()
+            Connection.SendUnreliable(GameMsgType.UpdateCritterInput, new CritterInputPacketMessage()
             {
                 critterInputPacket = obj
             });
