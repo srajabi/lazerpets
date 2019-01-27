@@ -83,7 +83,7 @@ namespace Networking
 
                 //Debug.Log("SENDING CritterStatePacketMessage player#" + currentPlayer.ID + " p" + p.position + " v" + p.velocity);
 
-                player.Connection.Send(GameMsgType.UpdateCritterState, new CritterStatePacketMessage()
+                player.Connection.SendUnreliable(GameMsgType.UpdateCritterState, new CritterStatePacketMessage()
                 {
                     ID = currentPlayer.ID,
                     critterStatePacket = p
