@@ -8,7 +8,7 @@ public class CritterMoverConfig
     public float suspensionRadiusRatio;
 
     public float maxSpeed;
-    public float walkAccel;
+    public float accelLag;
     public float autoDecel;
     public float jumpVelY;
     public float gravityMult;
@@ -18,10 +18,12 @@ public class CritterMoverConfig
 
 public class CritterMover
 {
+    public readonly GameObject Head;
+    public readonly GameObject NeckBone;
+
     readonly GameObject critter;
     readonly CritterMoverConfig config;
 
-    readonly GameObject childHead;
     readonly GameObject childCamera;
     readonly Rigidbody rb;
     readonly float radius;
@@ -31,24 +33,43 @@ public class CritterMover
     int grounded;
     float cameraBobT;
 
-    public CritterMover(GameObject critter, CritterMoverConfig config)
+    private Transform FindChildByName(string partial, Transform parent)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name.ToLower().Contains(partial.ToLower()))
+                return child;
+        }
+
+        foreach (Transform child in parent)
+        {
+            var trans = FindChildByName(partial, child);
+            if (trans != null)
+                return trans;
+        }
+
+        return null;
+    }
+
+    public CritterMover(GameObject critter, CritterMoverConfig config, IPlayerAudioManager audioManager)
     {
         this.critter = critter;
         this.config = config;
 
         rb = critter.GetComponent<Rigidbody>();
         radius = critter.GetComponent<SphereCollider>().radius;
-        childHead = critter.transform.Find("Head").gameObject;
+        Head = critter.transform.Find("Head").gameObject;
+        NeckBone = FindChildByName("neck", critter.transform).gameObject;
         childCamera = critter.GetComponentInChildren<Camera>().gameObject;
         cameraBobT = 0;
         suspensionRadius = config.suspensionRadiusRatio * radius;
-        launcher = AttackLauncherFactory.Create(config.attackKind);
+        launcher = AttackLauncherFactory.Create(config.attackKind, audioManager);
     }
 
     public void UpdateImmediate(CritterInputPacket packet)
     {
         cameraBobT += rb.velocity.WithY(0).magnitude * 0.05f;
-        childHead.transform.rotation = packet.headOrientation;
+        Head.transform.rotation = packet.headOrientation;
         childCamera.transform.localPosition = 0.02f * cameraBob(cameraBobT);
     }
 
@@ -58,33 +79,38 @@ public class CritterMover
 
         rb.velocity += Physics.gravity * config.gravityMult * Time.fixedDeltaTime;
 
-        var fwd = childHead.transform.forward.WithY(0).normalized;
-        var right = childHead.transform.right.WithY(0).normalized;
+        var flatVel = rb.velocity.WithY(0);
+        var fwd = Head.transform.forward.WithY(0).normalized;
+        var right = Head.transform.right.WithY(0).normalized;
+
+        var desiredVel = Vector3.zero;
 
         if (packet.forward) {
-            rb.velocity += fwd * config.walkAccel * Time.fixedDeltaTime;
+            desiredVel += fwd;
             walking = true;
         } else if (packet.backward) {
-            rb.velocity -= fwd * config.walkAccel * Time.fixedDeltaTime;
+            desiredVel -= fwd;
             walking = true;
         }
 
         if (packet.rightward) {
-            rb.velocity += right * config.walkAccel * Time.fixedDeltaTime;
+            desiredVel += right;
             walking = true;
         } else if (packet.leftward) {
-            rb.velocity -= right * config.walkAccel * Time.fixedDeltaTime;
+            desiredVel -= right;
             walking = true;
         }
 
-        var flatVel = rb.velocity.WithY(0);
+        desiredVel = desiredVel.normalized * config.maxSpeed;
+
+        if (walking) {
+            flatVel = Vector3.Lerp(flatVel, desiredVel, 1f / config.accelLag);
+        } else {
+            flatVel *= config.autoDecel;
+        }
 
         if (flatVel.sqrMagnitude > config.maxSpeed * config.maxSpeed) {
             flatVel = flatVel.normalized * config.maxSpeed;
-        }
-
-        if (!walking) {
-            flatVel *= 0.5f;
         }
 
         rb.velocity = flatVel + Vector3.up * rb.velocity.y;
@@ -115,13 +141,19 @@ public class CritterMover
         return new CritterStatePacket {
             position = newPosition,
             velocity = rb.velocity,
+            rotation = Head.transform.rotation
         };
     }
 
-    public void TakeStateFromServer(CritterStatePacket state)
+    public void TakeStateFromServer(CritterStatePacket state, bool setRotation = true)
     {
         rb.MovePosition(state.position);
         rb.velocity = state.velocity;
+
+        if (setRotation)
+        {
+            Head.transform.rotation = state.rotation;
+        }
     }
 
     static Vector2 cameraBob(float t)

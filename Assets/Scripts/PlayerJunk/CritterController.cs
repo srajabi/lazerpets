@@ -1,30 +1,69 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class CritterController : MonoBehaviour
 {
-    [SerializeField] float mouseSensitivity = 4f;
     [SerializeField] CritterMoverConfig critterConfig;
+    [SerializeField] CatAudioManager audioManager;
 
-    CritterInputGrabber inputGrabber;
-    CritterMover critterMover;
+    public IInputGrabber localInputGrabber;
+    public CritterMover Mover { get; private set; }
 
-    private void Start()
+    public bool IsServer;
+    internal CritterInputPacket? InputPacketOveride;
+
+    public event Action<CritterStatePacket> OnCritterStatePacket;
+    public event Action<CritterInputPacket> OnCritterInputPacket;
+
+    private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        inputGrabber = new CritterInputGrabber(mouseSensitivity);
-        critterMover = new CritterMover(gameObject, critterConfig);
+        //inputGrabber = new CritterInputGrabber(mouseSensitivity);
+        Mover = new CritterMover(gameObject, critterConfig, audioManager);
     }
 
     private void Update()
     {
-        // Always use the local input grabber to drive the mover with UpdateImmediate
-        critterMover.UpdateImmediate(inputGrabber.UpdateImmediate());
+        if (localInputGrabber != null)
+        {
+            // Always use the local input grabber to drive the mover with UpdateImmediate
+            Mover.UpdateImmediate(localInputGrabber.UpdateImmediate());
+        }
+    }
+
+    public void UpdateViaCritterStatePacket(CritterStatePacket critterStatePacket)
+    {
+        Mover.TakeStateFromServer(critterStatePacket, true);
     }
 
     private void FixedUpdate()
     {
+        CritterInputPacket? inputPacket = null;
+        if (localInputGrabber != null)
+        {
+            inputPacket = localInputGrabber.UpdateTick();
+
+            OnCritterInputPacket?.Invoke(inputPacket.Value);
+        }
+
+        if (IsServer && inputPacket != null)
+        {
+            var statePacket = Mover.UpdateTick(inputPacket.Value);
+            OnCritterStatePacket?.Invoke(statePacket);
+        }
+        else
+        {
+            if (InputPacketOveride != null)
+            {
+                var statePacket = Mover.UpdateTick(InputPacketOveride.Value);
+                if (IsServer)
+                {
+                    OnCritterStatePacket?.Invoke(statePacket);
+                }
+            }
+        }
         // If we're the server do this but don't use input grabber, use the remote packet input packet
-        var critterNewState = critterMover.UpdateTick(inputGrabber.UpdateTick());
+        //var critterNewState = critterMover.UpdateTick(authorativeInputGrabber.UpdateTick());
         // broadcastToClients( critterNewState );
 
         // if we're a client and taking state from the server then run {

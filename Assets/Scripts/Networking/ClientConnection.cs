@@ -37,6 +37,7 @@ namespace Networking
             client.RegisterHandler(GameMsgType.UpdateActivePlayers, HandleUpdateActivePlayers);
             client.RegisterHandler(GameMsgType.PlayerDisconnect, HandlePlayerDisconnect);
             client.RegisterHandler(GameMsgType.Effects, HandleEffectReceived);
+            client.RegisterHandler(GameMsgType.UpdateCritterState, HandleUpdateCritterState);
 
             client.Connect(serverAddress, CONNECTION_PORT);
 
@@ -58,6 +59,16 @@ namespace Networking
         {
             GameMessageBase gameMsg = msg as GameMessageBase;
             client.Send(gameMsg.Type, gameMsg);
+        }
+
+        private void HandleUpdateCritterState(NetworkMessage netMsg)
+        {
+            var message = netMsg.ReadMessage<CritterStatePacketMessage>();
+            var player = activePlayers.Find(p => p.ID == message.ID);
+
+            //Debug.Log("SENDING CritterStatePacketMessage player#" + player.ID + " p" + message.critterStatePacket.position + " v" + message.critterStatePacket.velocity);
+
+            player.HandleCritterStatePacket(message.critterStatePacket);
         }
 
         private void HandleEffectReceived(NetworkMessage netMsg)
@@ -92,8 +103,11 @@ namespace Networking
                     {
                         ID = playerData.ID,
                         Name = playerData.Name,
+                        CharacterType = playerData.CharacterType,
                         IsSelf = playerData.ID == client.connection.connectionId
+                       
                     };
+                    existingPlayer.Connection = (existingPlayer.IsSelf) ? client.connection : null;
                     activePlayers.Add(existingPlayer);
                     OnPlayerConnect?.Invoke(existingPlayer);
                 }

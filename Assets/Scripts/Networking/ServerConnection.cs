@@ -32,6 +32,8 @@ namespace Networking
         {
             networkServerSimple = new WrappedNetworkServerSimple();
 
+            networkServerSimple.RegisterHandler(GameMsgType.UpdateCritterInput, HandeUpdateCritterInput);
+
             networkServerSimple.OnClientConnected += OnClientConnected;
             networkServerSimple.OnClientDisconnected += OnClientDisconnected;
             networkServerSimple.RegisterHandler(GameMsgType.Effects, HandleEffectReceived);
@@ -46,6 +48,11 @@ namespace Networking
             CurrentPlayer.ID = 0;
             CurrentPlayer.IsSelf = true;
 
+            CurrentPlayer.PostCritterStatePacket += (p) =>
+            {
+                PostCritterStatePacket(p, CurrentPlayer);
+            };
+
             activePlayers.Add(CurrentPlayer);
 
             OnPlayerConnect?.Invoke(CurrentPlayer);
@@ -55,7 +62,6 @@ namespace Networking
             yield break;
         }
 
-
         private void HandleEffectReceived(NetworkMessage netMsg)
         {
             Debug.LogError("HandleEffectReceived");
@@ -64,6 +70,37 @@ namespace Networking
             player.Player.Effects.ApplyEffect(message.Effect,
                                             message.Point,
                                             message.Normal);
+
+        }
+        private void PostCritterStatePacket(CritterStatePacket p, NetworkPlayer currentPlayer)
+        {
+            foreach(var player in activePlayers)
+            {
+                if (player.isServer)
+                {
+                    continue;
+                }
+
+                //Debug.Log("SENDING CritterStatePacketMessage player#" + currentPlayer.ID + " p" + p.position + " v" + p.velocity);
+
+                player.Connection.Send(GameMsgType.UpdateCritterState, new CritterStatePacketMessage()
+                {
+                    ID = currentPlayer.ID,
+                    critterStatePacket = p
+                });
+            }
+        }
+
+        private void HandeUpdateCritterInput(NetworkMessage netMsg)
+        {
+            var inputPacket = netMsg.ReadMessage<CritterInputPacketMessage>();
+
+            var player = activePlayers.Where(p => p.Connection == netMsg.conn).First();
+
+            Debug.Log("RECIV HandeUpdateCritterInput player#" + player.ID + "  " + inputPacket);
+
+
+            player.Player.SetInputPacket(inputPacket.critterInputPacket);
         }
 
         private void OnClientDisconnected(NetworkConnection obj)
@@ -119,6 +156,10 @@ namespace Networking
 
             player.Connection = obj;
             player.ID = obj.connectionId;
+            player.PostCritterStatePacket += (p) =>
+            {
+                PostCritterStatePacket(p, player);
+            };
 
             activePlayers.Add(player);
 
@@ -152,7 +193,7 @@ namespace Networking
             base.Update();
 
             // TODO: syncing position this way is sloppy
-            UpdateActivePlayers();
+            //UpdateActivePlayers();
 
             networkServerSimple.Update();
             
