@@ -9,7 +9,7 @@ public class CritterController : MonoBehaviour
     CritterInputGrabber inputGrabber;
     public CritterMover Mover { get; private set; }
 
-    private void Start()
+    private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
         inputGrabber = new CritterInputGrabber(mouseSensitivity);
