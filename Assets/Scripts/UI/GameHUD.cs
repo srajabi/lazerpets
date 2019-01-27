@@ -43,7 +43,7 @@ namespace UI
         {
             if (gameManager.Players != null)
             {
-                var player = gameManager.Players.First(p => p.NetworkPlayer.IsSelf);
+                var player = gameManager.Players.FirstOrDefault(p => p.NetworkPlayer.IsSelf);
                 if (player != null)
                 {
                     var health = player.Health;
