@@ -141,18 +141,18 @@ public class CritterMover
         return new CritterStatePacket {
             position = newPosition,
             velocity = rb.velocity,
-            rotation = Head.transform.rotation
+            headOrientation = Head.transform.rotation
         };
     }
 
-    public void TakeStateFromServer(CritterStatePacket state, bool setRotation = true)
+    public void TakeStateFromServer(CritterStatePacket state, bool setHeadOrientation = true)
     {
         rb.MovePosition(state.position);
         rb.velocity = state.velocity;
 
-        if (setRotation)
+        if (setHeadOrientation)
         {
-            Head.transform.rotation = state.rotation;
+            Head.transform.rotation = state.headOrientation;
         }
     }
 
