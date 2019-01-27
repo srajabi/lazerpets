@@ -744,17 +744,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea2c5c82f921f9e49b1ba67b9b96e564, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseSensitivity: 4
   critterConfig:
     extraHeight: 0.19
     suspensionRadiusRatio: 0.9
-    maxSpeed: 3
-    walkAccel: 20
-    autoDecel: 1
+    maxSpeed: 2
+    accelLag: 10
+    autoDecel: 0.75
     jumpVelY: 7
-    gravityMult: 2
-    attackKind: 0
+    gravityMult: 1.5
+    attackKind: 1
   audioManager: {fileID: 5075982927703873783}
+  IsServer: 0
 --- !u!54 &8736681339461605905
 Rigidbody:
   m_ObjectHideFlags: 0

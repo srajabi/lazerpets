@@ -55,7 +55,7 @@ namespace Networking
 
         public NetworkPlayer()
         {
-            CharacterType = (CharacterTypes)UnityEngine.Random.Range(1, 3);
+            CharacterType = CharacterTypes.Dog;//(CharacterTypes)UnityEngine.Random.Range(1, 3);
 
             switch (CharacterType)
             {

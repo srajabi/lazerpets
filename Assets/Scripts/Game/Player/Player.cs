@@ -23,6 +23,8 @@ namespace Game
             name = string.Format("[Player] {0}", netPlayer.Name);
             netPlayer.Player = this;
 
+            GetComponent<CharacterInstantiator>().Create();
+            CritterController = GetComponentInChildren<CritterController>(true);
             CritterController.IsServer = isServer;
             CritterController.OnCritterStatePacket += netPlayer.ForwardCritterStatePacket;
             CritterController.localInputGrabber = (netPlayer.IsSelf) ? localInputGrabber : null;
@@ -37,8 +39,6 @@ namespace Game
 
             Debug.Log("Player Initialized: " + name + " isSelf" + netPlayer.IsSelf);
 
-            GetComponent<CharacterInstantiator>().Create();
-            CritterController = GetComponentInChildren<CritterController>(true);
             Effects = GetComponentInChildren<Effects>(true);
         }
 
