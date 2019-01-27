@@ -11,10 +11,10 @@ public class CritterMoverConfig
 
 public class CritterMover
 {
+    public readonly GameObject Head;
     readonly GameObject critter;
     readonly CritterMoverConfig config;
 
-    readonly GameObject childHead;
     readonly GameObject childCamera;
     readonly Rigidbody rb;
     readonly float radius;
@@ -31,7 +31,7 @@ public class CritterMover
 
         rb = critter.GetComponent<Rigidbody>();
         radius = critter.GetComponent<SphereCollider>().radius;
-        childHead = critter.transform.Find("Head").gameObject;
+        Head = critter.transform.Find("Head").gameObject;
         childCamera = critter.GetComponentInChildren<Camera>().gameObject;
         cameraBobT = 0;
         suspensionRadius = config.suspensionRadiusRatio * radius;
@@ -41,24 +41,24 @@ public class CritterMover
     public void UpdateImmediate(CritterInputPacket packet)
     {
         cameraBobT += rb.velocity.WithY(0).magnitude * 0.05f;
-        childHead.transform.rotation = packet.headOrientation;
+        Head.transform.rotation = packet.headOrientation;
         childCamera.transform.localPosition = 0.02f * cameraBob(cameraBobT);
     }
 
     public CritterStatePacket UpdateTick(CritterInputPacket packet)
     {
         if (packet.forward) {
-            rb.velocity += childHead.transform.forward * 0.1f;
+            rb.velocity += Head.transform.forward * 0.1f;
         }
         else if (packet.backward) {
-            rb.velocity += childHead.transform.forward * -0.1f;
+            rb.velocity += Head.transform.forward * -0.1f;
         }
 
         if (packet.rightward) {
-            rb.velocity += childHead.transform.right * 0.1f;
+            rb.velocity += Head.transform.right * 0.1f;
         }
         else if (packet.leftward) {
-            rb.velocity += childHead.transform.right * -0.1f;
+            rb.velocity += Head.transform.right * -0.1f;
         }
 
         if (packet.jump && grounded > 0) {
