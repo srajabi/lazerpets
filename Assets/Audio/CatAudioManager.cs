@@ -2,12 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IPlayerAudioManager
-{
-    void PlayProjectileAudio();
-}
-
-
 [RequireComponent(typeof(AudioSource))]
 public class CatAudioManager : MonoBehaviour, IPlayerAudioManager
 {
