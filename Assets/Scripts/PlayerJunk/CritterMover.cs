@@ -19,6 +19,7 @@ public class CritterMoverConfig
 public class CritterMover
 {
     public readonly GameObject Head;
+    public readonly GameObject NeckBone;
 
     readonly GameObject critter;
     readonly CritterMoverConfig config;
@@ -32,6 +33,24 @@ public class CritterMover
     int grounded;
     float cameraBobT;
 
+    private Transform FindChildByName(string partial, Transform parent)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name.ToLower().Contains(partial.ToLower()))
+                return child;
+        }
+
+        foreach (Transform child in parent)
+        {
+            var trans = FindChildByName(partial, child);
+            if (trans != null)
+                return trans;
+        }
+
+        return null;
+    }
+
     public CritterMover(GameObject critter, CritterMoverConfig config, IPlayerAudioManager audioManager)
     {
         this.critter = critter;
@@ -40,6 +59,7 @@ public class CritterMover
         rb = critter.GetComponent<Rigidbody>();
         radius = critter.GetComponent<SphereCollider>().radius;
         Head = critter.transform.Find("Head").gameObject;
+        NeckBone = FindChildByName("neck", critter.transform).gameObject;
         childCamera = critter.GetComponentInChildren<Camera>().gameObject;
         cameraBobT = 0;
         suspensionRadius = config.suspensionRadiusRatio * radius;

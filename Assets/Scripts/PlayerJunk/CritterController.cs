@@ -15,7 +15,7 @@ public class CritterController : MonoBehaviour
     public event Action<CritterStatePacket> OnCritterStatePacket;
     public event Action<CritterInputPacket> OnCritterInputPacket;
 
-    private void Start()
+    private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
         //inputGrabber = new CritterInputGrabber(mouseSensitivity);
