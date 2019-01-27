@@ -5646,6 +5646,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8719095376056132180}
   - component: {fileID: 8719095376046804436}
+  - component: {fileID: 5871471285363103818}
   m_Layer: 0
   m_Name: SimpleCats
   m_TagString: Untagged
@@ -5717,6 +5718,49 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &5871471285363103818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8719095376056172468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5819bc87d5f4188489cdf0c4522be8c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Models:
+  - {fileID: 8719095376056172470}
+  - {fileID: 8719095376056172464}
+  - {fileID: 8719095376056172466}
+  - {fileID: 8719095376056172476}
+  - {fileID: 8719095376056172478}
+  - {fileID: 8719095376056172472}
+  - {fileID: 8719095376056172474}
+  - {fileID: 8719095376056172452}
+  - {fileID: 8719095376056172454}
+  - {fileID: 8719095376056172448}
+  - {fileID: 8719095376056172450}
+  - {fileID: 8719095376056172460}
+  - {fileID: 8719095376056172462}
+  - {fileID: 8719095376056172456}
+  - {fileID: 8719095376056172458}
+  - {fileID: 8719095376056172436}
+  - {fileID: 8719095376056172438}
+  - {fileID: 8719095376056172432}
+  - {fileID: 8719095376056172434}
+  - {fileID: 8719095376056172444}
+  - {fileID: 8719095376056172446}
+  - {fileID: 8719095376056172440}
+  - {fileID: 8719095376056172442}
+  - {fileID: 8719095376056172420}
+  - {fileID: 8719095376056172422}
+  - {fileID: 8719095376056172416}
+  - {fileID: 8719095376056172418}
+  - {fileID: 8719095376056172428}
+  - {fileID: 8719095376056172430}
+  - {fileID: 8719095376056172424}
 --- !u!1 &8719095376056172470
 GameObject:
   m_ObjectHideFlags: 0
