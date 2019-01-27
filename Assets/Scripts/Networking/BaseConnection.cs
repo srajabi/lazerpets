@@ -30,6 +30,8 @@ namespace Networking
         {
             // no-op
         }
+
+        public abstract void SendMessage<T>(T msg) where T : GameMessageBase;
     }
 
 }
