@@ -18,10 +18,11 @@ public class CritterMoverConfig
 
 public class CritterMover
 {
+    public readonly GameObject Head;
+
     readonly GameObject critter;
     readonly CritterMoverConfig config;
 
-    readonly GameObject childHead;
     readonly GameObject childCamera;
     readonly Rigidbody rb;
     readonly float radius;
@@ -38,7 +39,7 @@ public class CritterMover
 
         rb = critter.GetComponent<Rigidbody>();
         radius = critter.GetComponent<SphereCollider>().radius;
-        childHead = critter.transform.Find("Head").gameObject;
+        Head = critter.transform.Find("Head").gameObject;
         childCamera = critter.GetComponentInChildren<Camera>().gameObject;
         cameraBobT = 0;
         suspensionRadius = config.suspensionRadiusRatio * radius;
@@ -48,7 +49,7 @@ public class CritterMover
     public void UpdateImmediate(CritterInputPacket packet)
     {
         cameraBobT += rb.velocity.WithY(0).magnitude * 0.05f;
-        childHead.transform.rotation = packet.headOrientation;
+        Head.transform.rotation = packet.headOrientation;
         childCamera.transform.localPosition = 0.02f * cameraBob(cameraBobT);
     }
 
@@ -58,8 +59,8 @@ public class CritterMover
 
         rb.velocity += Physics.gravity * config.gravityMult * Time.fixedDeltaTime;
 
-        var fwd = childHead.transform.forward.WithY(0).normalized;
-        var right = childHead.transform.right.WithY(0).normalized;
+        var fwd = Head.transform.forward.WithY(0).normalized;
+        var right = Head.transform.right.WithY(0).normalized;
 
         if (packet.forward) {
             rb.velocity += fwd * config.walkAccel * Time.fixedDeltaTime;
