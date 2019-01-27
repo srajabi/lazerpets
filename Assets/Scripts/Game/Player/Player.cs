@@ -17,8 +17,6 @@ namespace Game
         {
             Health = GetComponentInChildren<Health>(true);
             Score = GetComponentInChildren<PlayerScore>(true);
-            CritterController = GetComponentInChildren<CritterController>(true);
-            Effects = GetComponentInChildren<Effects>(true);
         }
 
         internal void Initialize(NetworkPlayer netPlayer)
@@ -28,6 +26,10 @@ namespace Game
             netPlayer.Player = this;
 
             Debug.Log("Player Initialized: " + name + " isSelf" + netPlayer.IsSelf);
+
+            GetComponent<CharacterInstantiator>().Create();
+            CritterController = GetComponentInChildren<CritterController>(true);
+            Effects = GetComponentInChildren<Effects>(true);
         }
     }
 }
