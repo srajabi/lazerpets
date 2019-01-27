@@ -8,7 +8,7 @@ public class CritterMoverConfig
     public float suspensionRadiusRatio;
 
     public float maxSpeed;
-    public float walkAccel;
+    public float accelLag;
     public float autoDecel;
     public float jumpVelY;
     public float gravityMult;
@@ -79,33 +79,38 @@ public class CritterMover
 
         rb.velocity += Physics.gravity * config.gravityMult * Time.fixedDeltaTime;
 
+        var flatVel = rb.velocity.WithY(0);
         var fwd = Head.transform.forward.WithY(0).normalized;
         var right = Head.transform.right.WithY(0).normalized;
 
+        var desiredVel = Vector3.zero;
+
         if (packet.forward) {
-            rb.velocity += fwd * config.walkAccel * Time.fixedDeltaTime;
+            desiredVel += fwd;
             walking = true;
         } else if (packet.backward) {
-            rb.velocity -= fwd * config.walkAccel * Time.fixedDeltaTime;
+            desiredVel -= fwd;
             walking = true;
         }
 
         if (packet.rightward) {
-            rb.velocity += right * config.walkAccel * Time.fixedDeltaTime;
+            desiredVel += right;
             walking = true;
         } else if (packet.leftward) {
-            rb.velocity -= right * config.walkAccel * Time.fixedDeltaTime;
+            desiredVel -= right;
             walking = true;
         }
 
-        var flatVel = rb.velocity.WithY(0);
+        desiredVel = desiredVel.normalized * config.maxSpeed;
+
+        if (walking) {
+            flatVel = Vector3.Lerp(flatVel, desiredVel, 1f / config.accelLag);
+        } else {
+            flatVel *= config.autoDecel;
+        }
 
         if (flatVel.sqrMagnitude > config.maxSpeed * config.maxSpeed) {
             flatVel = flatVel.normalized * config.maxSpeed;
-        }
-
-        if (!walking) {
-            flatVel *= 0.5f;
         }
 
         rb.velocity = flatVel + Vector3.up * rb.velocity.y;
@@ -136,13 +141,19 @@ public class CritterMover
         return new CritterStatePacket {
             position = newPosition,
             velocity = rb.velocity,
+            rotation = Head.transform.rotation
         };
     }
 
-    public void TakeStateFromServer(CritterStatePacket state)
+    public void TakeStateFromServer(CritterStatePacket state, bool setRotation = true)
     {
         rb.MovePosition(state.position);
         rb.velocity = state.velocity;
+
+        if (setRotation)
+        {
+            Head.transform.rotation = state.rotation;
+        }
     }
 
     static Vector2 cameraBob(float t)

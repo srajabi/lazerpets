@@ -36,7 +36,8 @@ namespace Networking
 
             client.RegisterHandler(GameMsgType.UpdateActivePlayers, HandleUpdateActivePlayers);
             client.RegisterHandler(GameMsgType.PlayerDisconnect, HandlePlayerDisconnect);
-            client.RegisterHandler(GameMsgType.DamageReceived, HandleDamageReceived);
+            client.RegisterHandler(GameMsgType.Effects, HandleEffectReceived);
+            client.RegisterHandler(GameMsgType.UpdateCritterState, HandleUpdateCritterState);
 
             client.Connect(serverAddress, CONNECTION_PORT);
 
@@ -54,11 +55,30 @@ namespace Networking
             }
         }
 
-        private void HandleDamageReceived(NetworkMessage netMsg)
+        public override void SendMessage<T>(T msg)
         {
-            var message = netMsg.ReadMessage<PlayerDamageMessage>();
-            var player = activePlayers.Find(p => p.ID == message.id);
-            player.Player.Effects.InstantiateDamageEffect(message.damage);
+            GameMessageBase gameMsg = msg as GameMessageBase;
+            client.Send(gameMsg.Type, gameMsg);
+        }
+
+        private void HandleUpdateCritterState(NetworkMessage netMsg)
+        {
+            var message = netMsg.ReadMessage<CritterStatePacketMessage>();
+            var player = activePlayers.Find(p => p.ID == message.ID);
+
+            //Debug.Log("SENDING CritterStatePacketMessage player#" + player.ID + " p" + message.critterStatePacket.position + " v" + message.critterStatePacket.velocity);
+
+            player.HandleCritterStatePacket(message.critterStatePacket);
+        }
+
+        private void HandleEffectReceived(NetworkMessage netMsg)
+        {
+            Debug.LogError("HandleEffectReceived");
+            var message = netMsg.ReadMessage<PlayerEffectMessage>();
+            var player = activePlayers.Find(p => p.ID == message.Id);
+            player.Player.Effects.ApplyEffect(message.Effect,
+                                        message.Point,
+                                        message.Normal);
         }
 
         private void HandlePlayerDisconnect(NetworkMessage netMsg)
@@ -83,8 +103,11 @@ namespace Networking
                     {
                         ID = playerData.ID,
                         Name = playerData.Name,
+                        CharacterType = playerData.CharacterType,
                         IsSelf = playerData.ID == client.connection.connectionId
+                       
                     };
+                    existingPlayer.Connection = (existingPlayer.IsSelf) ? client.connection : null;
                     activePlayers.Add(existingPlayer);
                     OnPlayerConnect?.Invoke(existingPlayer);
                 }

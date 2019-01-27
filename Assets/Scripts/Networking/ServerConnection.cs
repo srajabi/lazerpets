@@ -32,8 +32,11 @@ namespace Networking
         {
             networkServerSimple = new WrappedNetworkServerSimple();
 
+            networkServerSimple.RegisterHandler(GameMsgType.UpdateCritterInput, HandeUpdateCritterInput);
+
             networkServerSimple.OnClientConnected += OnClientConnected;
             networkServerSimple.OnClientDisconnected += OnClientDisconnected;
+            networkServerSimple.RegisterHandler(GameMsgType.Effects, HandleEffectReceived);
 
             networkServerSimple.Initialize();
             networkServerSimple.Listen(CONNECTION_PORT);
@@ -45,6 +48,11 @@ namespace Networking
             CurrentPlayer.ID = 0;
             CurrentPlayer.IsSelf = true;
 
+            CurrentPlayer.PostCritterStatePacket += (p) =>
+            {
+                PostCritterStatePacket(p, CurrentPlayer);
+            };
+
             activePlayers.Add(CurrentPlayer);
 
             OnPlayerConnect?.Invoke(CurrentPlayer);
@@ -52,6 +60,47 @@ namespace Networking
             UpdateActivePlayers();
 
             yield break;
+        }
+
+        private void HandleEffectReceived(NetworkMessage netMsg)
+        {
+            Debug.LogError("HandleEffectReceived");
+            var message = netMsg.ReadMessage<PlayerEffectMessage>();
+            var player = activePlayers.Find(p => p.ID == message.Id);
+            player.Player.Effects.ApplyEffect(message.Effect,
+                                            message.Point,
+                                            message.Normal);
+
+        }
+        private void PostCritterStatePacket(CritterStatePacket p, NetworkPlayer currentPlayer)
+        {
+            foreach(var player in activePlayers)
+            {
+                if (player.isServer)
+                {
+                    continue;
+                }
+
+                //Debug.Log("SENDING CritterStatePacketMessage player#" + currentPlayer.ID + " p" + p.position + " v" + p.velocity);
+
+                player.Connection.Send(GameMsgType.UpdateCritterState, new CritterStatePacketMessage()
+                {
+                    ID = currentPlayer.ID,
+                    critterStatePacket = p
+                });
+            }
+        }
+
+        private void HandeUpdateCritterInput(NetworkMessage netMsg)
+        {
+            var inputPacket = netMsg.ReadMessage<CritterInputPacketMessage>();
+
+            var player = activePlayers.Where(p => p.Connection == netMsg.conn).First();
+
+            Debug.Log("RECIV HandeUpdateCritterInput player#" + player.ID + "  " + inputPacket);
+
+
+            player.Player.SetInputPacket(inputPacket.critterInputPacket);
         }
 
         private void OnClientDisconnected(NetworkConnection obj)
@@ -107,6 +156,10 @@ namespace Networking
 
             player.Connection = obj;
             player.ID = obj.connectionId;
+            player.PostCritterStatePacket += (p) =>
+            {
+                PostCritterStatePacket(p, player);
+            };
 
             activePlayers.Add(player);
 
@@ -140,12 +193,34 @@ namespace Networking
             base.Update();
 
             // TODO: syncing position this way is sloppy
-            UpdateActivePlayers();
+            //UpdateActivePlayers();
 
             networkServerSimple.Update();
             
         }
 
+        public override void SendMessage<T>(T msg)
+        {
+            GameMessageBase gameMsg = msg as GameMessageBase;
+            var player = activePlayers.Find(p => p.ID == gameMsg.Id);
+
+            if(player == CurrentPlayer)
+            {
+                if (gameMsg is PlayerEffectMessage)
+                {
+                    PlayerEffectMessage effectMsg = gameMsg as PlayerEffectMessage;
+                    Game.GameManager.Instance.
+                        GetPlayer(player.ID).
+                        Effects.
+                        ApplyEffect(effectMsg.Effect,
+                            effectMsg.Point,
+                            effectMsg.Normal);
+                    return;
+                }
+            }
+
+            player.Connection.Send(gameMsg.Type, msg);
+        }
     }
 
 }

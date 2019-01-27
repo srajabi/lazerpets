@@ -9,7 +9,7 @@ namespace Game
 
         public void OnCollisionEnter(Collision collision)
         {
-            Apply(collision.gameObject);
+            Apply(collision);
             OnCollision?.Invoke(this, EventArgs.Empty);
         }
     }

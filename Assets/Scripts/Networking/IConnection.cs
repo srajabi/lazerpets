@@ -23,6 +23,7 @@ namespace Networking
         void Shutdown();
 
         void Update();
+        void SendMessage<T>(T msg) where T : GameMessageBase;
     }
 
 }

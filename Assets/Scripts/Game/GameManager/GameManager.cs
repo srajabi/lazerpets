@@ -8,6 +8,24 @@ namespace Game
 {
     public class GameManager : MonoBehaviour
     {
+        static GameManager instance;
+        public static GameManager Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = FindObjectOfType<GameManager>();
+                }
+                if (instance == null)
+                {
+                    GameObject go = new GameObject();
+                    instance = go.AddComponent<GameManager>();
+                }
+                return instance;
+            }
+        }
+
         public bool Initialized { get; private set; }
         public event EventHandler OnInitialized;
         
@@ -17,19 +35,23 @@ namespace Game
         [SerializeField]
         private Player PlayerPrefab;
 
-        private ConnectionManager connectionManager;
+        public ConnectionManager ConnectionManager;
         private GameSpawner spawner;
+
+        [SerializeField] float mouseSensitivity = 4f;
+        public CritterInputGrabber LocalInputGrabber;
 
         private Dictionary<Networking.NetworkPlayer, Player> NetworkToGameMap = new Dictionary<Networking.NetworkPlayer, Player>();
 
         public Coroutine Initialize(ConnectionManager connectionManager)
         {
+            LocalInputGrabber = new CritterInputGrabber(mouseSensitivity);
             return StartCoroutine(InitializeAsync(connectionManager));
         }
 
         private IEnumerator InitializeAsync(ConnectionManager connectionManager)
         {
-            this.connectionManager = connectionManager ?? throw new ArgumentNullException(nameof(connectionManager));
+            this.ConnectionManager = connectionManager ?? throw new ArgumentNullException(nameof(connectionManager));
             spawner = new GameSpawner(this);
 
             connectionManager.OnPlayerConnect += OnPlayerConnect;
@@ -76,9 +98,7 @@ namespace Game
         {
             var player = GameObject.Instantiate<Player>(PlayerPrefab);
 
-            player.Initialize(netPlayer);
-
-            
+            player.Initialize(netPlayer, LocalInputGrabber, ConnectionManager.connectionMode == ConnectionMode.SERVER);
 
             spawner.Spawn(player);
 
@@ -88,7 +108,7 @@ namespace Game
         public void OnActivePlayersUpdated()
 		{
             Debug.Log("OnActivePlayersUpdated");
-            foreach (Networking.NetworkPlayer player in connectionManager.ActivePlayers)
+            foreach (Networking.NetworkPlayer player in ConnectionManager.ActivePlayers)
             {
                 Debug.Log("OnActivePlayersUpdated Player #" + player.ID + "(" + player.Name + ")");
             }
@@ -98,11 +118,21 @@ namespace Game
 		{
             if (Initialized)
             {
-                connectionManager.Update();
+                ConnectionManager.Update();
             }
         }
 
-		private void InitializeGame()
+        /*public void FixedUpdate()
+        {
+            if (Initialized && connectionManager.connectionMode == ConnectionMode.CLIENT)
+            {
+                var critterInputPacket = LocalInputGrabber.UpdateTick();
+
+                connectionManager.
+            }
+        }*/
+
+        private void InitializeGame()
         {
             FindPlayers();
         }
@@ -110,6 +140,18 @@ namespace Game
         private void FindPlayers()
         {
             players = FindObjectsOfType<Player>();
+        }
+
+        public Player GetPlayer(int id)
+        {
+            foreach(Player p in players)
+            {
+                if(p.NetworkPlayer.ID == id)
+                {
+                    return p;
+                }
+            }
+            return null;
         }
     }
 }

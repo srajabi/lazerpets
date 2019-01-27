@@ -20,6 +20,7 @@ static public class AttackLauncherFactory
         switch (kind) 
         {
             case AttackKind.CatProjectile:
+            default:
                 return new CatProjectileLauncher(playerAudioManager);
         }
 

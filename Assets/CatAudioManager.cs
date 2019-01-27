@@ -12,10 +12,12 @@ public interface IPlayerAudioManager
 public class CatAudioManager : MonoBehaviour, IPlayerAudioManager
 {
     AudioSource AudioSource;
-    [SerializeField] AudioClip[] audioClips;
+    [SerializeField] AudioClip[] attackClips;
 
     public void PlayProjectileAudio()
     {
+        var index = Random.Range(0, attackClips.Length);
+        this.AudioSource.clip = attackClips[index];
         AudioSource.Play();
     }
 
@@ -23,12 +25,6 @@ public class CatAudioManager : MonoBehaviour, IPlayerAudioManager
     void Start()
     {
         AudioSource = GetComponent<AudioSource>();
-        AudioSource.clip = audioClips[0];
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        AudioSource.clip = attackClips[0];
     }
 }
