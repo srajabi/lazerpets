@@ -20,7 +20,7 @@ public class BirdController : MonoBehaviour
     [SerializeField] float FlapPower = 5f;
 
     [SerializeField] float SizeOfShitRelativeToBird = .5f;
-    [SerializeField] float ShitsPerMinute = 120f;
+    [SerializeField] float ShitsPerMinute = 240f;
 
     Rigidbody rb;
     float _yawDegress;
@@ -82,9 +82,9 @@ public class BirdController : MonoBehaviour
         {
             timeOfLastBowelMovement = Time.time;
             var shit = Instantiate(Resources.Load("Prefabs/BirdShit") as GameObject);
+            shit.transform.position = transform.position;
             shit.transform.localScale = transform.localScale * SizeOfShitRelativeToBird;
             var birdShit = shit.GetComponent<BirdShit>();
-            birdShit.SetInitialVelocity(rb.velocity);
         }
     }
 
