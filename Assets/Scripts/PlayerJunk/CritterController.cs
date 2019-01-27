@@ -48,7 +48,7 @@ public class CritterController : MonoBehaviour
         {
             if (InputPacketOveride != null)
             {
-                critterMover.UpdateTick(InputPacketOveride.Value);
+                Mover.UpdateTick(InputPacketOveride.Value);
             }
         }
         // If we're the server do this but don't use input grabber, use the remote packet input packet
