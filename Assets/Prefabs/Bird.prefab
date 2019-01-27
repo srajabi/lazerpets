@@ -227,12 +227,12 @@ MonoBehaviour:
   RollClampDegrees: 45
   FlapFrequency: 3
   Mass: 0.1
-  DragMagic: 0.1
+  DragMagic: 0.08
   LiftMagic: 0.01
   GlideMagic: 10
   FlapThrustToLiftRatioPressingW: 0.7
   FlapThrustToLiftRatioPressingNotPressingW: 0.3
-  FlapPower: 5
+  FlapPower: 7
   SizeOfShitRelativeToBird: 0.5
   ShitsPerMinute: 60
 --- !u!54 &7772378711642541791
