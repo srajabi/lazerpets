@@ -43,6 +43,19 @@ namespace Networking
 
         public bool IsSelf { get; internal set; }
 
+        public event Action<CritterStatePacket> OnIncommingCritterStatePacket;
+        public event Action<CritterStatePacket> PostCritterStatePacket;
+
+
+        internal void ForwardCritterStatePacket(CritterStatePacket obj)
+        {
+            PostCritterStatePacket?.Invoke(obj);
+            //Connection.Send(GameMsgType.UpdateCritterState, new CritterStatePacketMessage()
+            //{
+            //    critterStatePacket = obj
+            //});
+        }
+
         public NetworkPlayer()
         {
             CharacterType = (CharacterTypes)UnityEngine.Random.Range(1, 3);
@@ -60,6 +73,19 @@ namespace Networking
                     Name = NAMES_BIRDS.OrderBy(n => Guid.NewGuid()).First();
                     break;
             }
+        }
+
+        internal void HandleCritterStatePacket(CritterStatePacket critterStatePacket)
+        {
+            Player.CritterController.UpdateViaCritterStatePacket(critterStatePacket);
+        }
+
+        internal void PostCritterInputPacket(CritterInputPacket obj)
+        {
+            Connection.Send(GameMsgType.UpdateCritterInput, new CritterInputPacketMessage()
+            {
+                critterInputPacket = obj
+            });
         }
     }
 

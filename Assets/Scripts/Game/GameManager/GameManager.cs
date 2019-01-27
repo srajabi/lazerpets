@@ -20,10 +20,14 @@ namespace Game
         private ConnectionManager connectionManager;
         private GameSpawner spawner;
 
+        [SerializeField] float mouseSensitivity = 4f;
+        public CritterInputGrabber LocalInputGrabber;
+
         private Dictionary<Networking.NetworkPlayer, Player> NetworkToGameMap = new Dictionary<Networking.NetworkPlayer, Player>();
 
         public Coroutine Initialize(ConnectionManager connectionManager)
         {
+            LocalInputGrabber = new CritterInputGrabber(mouseSensitivity);
             return StartCoroutine(InitializeAsync(connectionManager));
         }
 
@@ -76,9 +80,7 @@ namespace Game
         {
             var player = GameObject.Instantiate<Player>(PlayerPrefab);
 
-            player.Initialize(netPlayer);
-
-            
+            player.Initialize(netPlayer, LocalInputGrabber, connectionManager.connectionMode == ConnectionMode.SERVER);
 
             spawner.Spawn(player);
 
@@ -102,7 +104,17 @@ namespace Game
             }
         }
 
-		private void InitializeGame()
+        /*public void FixedUpdate()
+        {
+            if (Initialized && connectionManager.connectionMode == ConnectionMode.CLIENT)
+            {
+                var critterInputPacket = LocalInputGrabber.UpdateTick();
+
+                connectionManager.
+            }
+        }*/
+
+        private void InitializeGame()
         {
             FindPlayers();
         }

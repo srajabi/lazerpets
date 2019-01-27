@@ -1,6 +1,12 @@
 ﻿using UnityEngine;
 
-public class CritterInputGrabber
+public interface IInputGrabber
+{
+    CritterInputPacket UpdateImmediate();
+    CritterInputPacket UpdateTick();
+}
+
+public class CritterInputGrabber : IInputGrabber
 {
     readonly float mouseSensitivity;
 

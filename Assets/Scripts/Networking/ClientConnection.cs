@@ -36,6 +36,7 @@ namespace Networking
 
             client.RegisterHandler(GameMsgType.UpdateActivePlayers, HandleUpdateActivePlayers);
             client.RegisterHandler(GameMsgType.PlayerDisconnect, HandlePlayerDisconnect);
+            client.RegisterHandler(GameMsgType.UpdateCritterState, HandleUpdateCritterState);
 
             client.Connect(serverAddress, CONNECTION_PORT);
 
@@ -51,6 +52,14 @@ namespace Networking
             {
                 Debug.Log("Client Not Connected!");
             }
+        }
+
+        private void HandleUpdateCritterState(NetworkMessage netMsg)
+        {
+            var message = netMsg.ReadMessage<CritterStatePacketMessage>();
+            var player = activePlayers.Find(p => p.ID == message.ID);
+
+            player.HandleCritterStatePacket(message.critterStatePacket);
         }
 
         private void HandlePlayerDisconnect(NetworkMessage netMsg)

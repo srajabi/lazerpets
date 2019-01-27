@@ -32,6 +32,8 @@ namespace Networking
         {
             networkServerSimple = new WrappedNetworkServerSimple();
 
+            networkServerSimple.RegisterHandler(GameMsgType.UpdateCritterInput, HandeUpdateCritterInput);
+
             networkServerSimple.OnClientConnected += OnClientConnected;
             networkServerSimple.OnClientDisconnected += OnClientDisconnected;
 
@@ -45,6 +47,11 @@ namespace Networking
             CurrentPlayer.ID = 0;
             CurrentPlayer.IsSelf = true;
 
+            CurrentPlayer.PostCritterStatePacket += (p) =>
+            {
+                PostCritterStatePacket(p, CurrentPlayer);
+            };
+
             activePlayers.Add(CurrentPlayer);
 
             OnPlayerConnect?.Invoke(CurrentPlayer);
@@ -52,6 +59,33 @@ namespace Networking
             UpdateActivePlayers();
 
             yield break;
+        }
+
+        private void PostCritterStatePacket(CritterStatePacket p, NetworkPlayer currentPlayer)
+        {
+            foreach(var player in activePlayers)
+            {
+                if (player.isServer)
+                {
+                    continue;
+                }
+
+                player.Connection.Send(GameMsgType.UpdateCritterState, new CritterStatePacketMessage()
+                {
+                    ID = player.ID,
+                    critterStatePacket = p
+                });
+            }
+        }
+
+        private void HandeUpdateCritterInput(NetworkMessage netMsg)
+        {
+            var inputPacket = netMsg.ReadMessage<CritterInputPacketMessage>();
+
+            var player = activePlayers.Where(p => p.Connection == netMsg.conn).First();
+
+            player.Player.SetInputPacket(inputPacket.critterInputPacket);
+
         }
 
         private void OnClientDisconnected(NetworkConnection obj)
@@ -107,6 +141,10 @@ namespace Networking
 
             player.Connection = obj;
             player.ID = obj.connectionId;
+            player.PostCritterStatePacket += (p) =>
+            {
+                PostCritterStatePacket(p, player);
+            };
 
             activePlayers.Add(player);
 
@@ -140,7 +178,7 @@ namespace Networking
             base.Update();
 
             // TODO: syncing position this way is sloppy
-            UpdateActivePlayers();
+            //UpdateActivePlayers();
 
             networkServerSimple.Update();
             
