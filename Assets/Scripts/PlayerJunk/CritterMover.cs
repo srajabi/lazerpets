@@ -16,9 +16,17 @@ public class CritterMoverConfig
     public AttackKind attackKind;
 }
 
-public class CritterMover
+public interface ICritterMover
 {
-    public readonly GameObject Head;
+    void UpdateImmediate(CritterInputPacket packet);
+    void TakeStateFromServer(CritterStatePacket state, bool setRotation = true);
+    CritterStatePacket UpdateTick(CritterInputPacket packet);
+    GameObject GetHead();
+}
+
+public class CritterMover : ICritterMover
+{
+    readonly GameObject Head;
     public readonly GameObject NeckBone;
 
     readonly GameObject critter;
@@ -32,6 +40,11 @@ public class CritterMover
 
     int grounded;
     float cameraBobT;
+
+    public GameObject GetHead()
+    {
+        return Head;
+    }
 
     private Transform FindChildByName(string partial, Transform parent)
     {
