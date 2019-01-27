@@ -94,6 +94,7 @@ namespace Networking
                     {
                         ID = playerData.ID,
                         Name = playerData.Name,
+                        CharacterType = playerData.CharacterType,
                         IsSelf = playerData.ID == client.connection.connectionId
                        
                     };
