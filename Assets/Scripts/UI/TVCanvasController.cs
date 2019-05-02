@@ -28,6 +28,18 @@ public class TVCanvasController : MonoBehaviour
 
     private string ipAddress;
 
+    private string LastUsedIPAddress
+    {
+        get
+        {
+            return PlayerPrefs.GetString("LastUsedIPAddress", LocalHostIP);
+        }
+        set
+        {
+            PlayerPrefs.SetString("LastUsedIPAddress", value);
+        }
+    }
+
     public void Initialize(Camera gameCamera, Camera tvCamera)
     {
         this.gameCamera = gameCamera ?? throw new ArgumentNullException(nameof(gameCamera));
@@ -38,12 +50,12 @@ public class TVCanvasController : MonoBehaviour
 
         ResetState();
     }
-
+    
     private void OnPlay()
     {
         if (string.IsNullOrWhiteSpace(IPAddressField.text))
         {
-            IPAddressField.text = LocalHostIP;
+            IPAddressField.text = LastUsedIPAddress;
         }
 
         IPAddressField.gameObject.SetActive(true);
@@ -58,7 +70,7 @@ public class TVCanvasController : MonoBehaviour
 
     private void OnConnect()
     {
-        ipAddress = IPAddressField.text;
+        LastUsedIPAddress = ipAddress = IPAddressField.text;
         PlayExitMenuAnimationAndConnect();
     }
 
@@ -95,12 +107,21 @@ public class TVCanvasController : MonoBehaviour
     {
         tvCamera.gameObject.SetActive(true);
 
-        GameCanvas.Initialize(ipAddress, tvCamera, UICamera, gameCamera, this);
+        GameCanvas.Initialize(tvCamera, UICamera, gameCamera, this);
         GameCanvas.gameObject.SetActive(true);
 
         var connectionManager = new ConnectionManager(ipAddress);
+        
         var gameManager = GameObject.FindObjectOfType<GameManager>();
-        gameManager.Initialize(connectionManager);
+        connectionManager.OnActivePlayersUpdated += UpdateGameCanvasConnectionInfo;
+
+        GameManager.Instance.Initialize(connectionManager);
+    }
+
+    private void UpdateGameCanvasConnectionInfo()
+    {
+        GameManager.Instance.ConnectionManager.OnActivePlayersUpdated -= UpdateGameCanvasConnectionInfo;
+        GameCanvas.UpdateConnectionInfo(GameManager.Instance.ConnectionManager);
     }
 
     private void ResetState()

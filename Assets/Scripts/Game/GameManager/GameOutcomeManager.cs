@@ -15,7 +15,23 @@ namespace Game
         public void Start()
         {
             GameManager = GetComponent<GameManager>();
-            GameManager.OnInitialized += InitializeGame;
+            GameManager.OnInitialized += Init;
+        }
+
+        private void Init(object sender, EventArgs e)
+        {
+            GameManager.ConnectionManager.OnPlayerConnect += OnConnect;
+            GameManager.ConnectionManager.OnPlayerDisconnect += OnDisconnect;
+        }
+
+        private void OnDisconnect(Networking.NetworkPlayer obj)
+        {
+            DeInitializePlayer(obj.Player);
+        }
+
+        private void OnConnect(Networking.NetworkPlayer obj)
+        {
+            InitializePlayer(obj.Player);
         }
 
         public void Update()
@@ -26,18 +42,19 @@ namespace Game
             CheckGameOutcome();
         }
 
-        private void InitializeGame(object sender, EventArgs e)
-        {
-            foreach (var player in GameManager.Players)
-            {
-                InitializePlayer(player);
-            }
-        }
-
         private void InitializePlayer(Player player)
         {
             player.Health.OnModified += OnHealthModified;
             player.Health.OnDeath += OnDeath;
+        }
+
+        private void DeInitializePlayer(Player player)
+        {
+            if (player == null)
+                return;
+
+            player.Health.OnModified -= OnHealthModified;
+            player.Health.OnDeath -= OnDeath;
         }
 
         private void OnDeath(object sender, HealthEventArgs e)

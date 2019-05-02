@@ -8,14 +8,14 @@ namespace Game
         public NetworkPlayer NetworkPlayer { get; set; }
         public Health Health { get; private set; }
         public PlayerScore Score { get; private set; }
-        public CritterController CritterController { get; private set; }
+        public ICritterController CritterController { get; private set; }
         public Effects Effects { get; private set; }
 
         public void Awake()
         {
             Health = GetComponentInChildren<Health>(true);
             Score = GetComponentInChildren<PlayerScore>(true);
-            CritterController = GetComponentInChildren<CritterController>(true);
+            CritterController = GetComponentInChildren<ICritterController>(true);
             Effects = GetComponentInChildren<Effects>(true);
             Effects.Player = this;
         }
@@ -29,16 +29,26 @@ namespace Game
             Debug.Log("Player Initialized: " + name + " isSelf" + netPlayer.IsSelf);
 
             GetComponent<CharacterInstantiator>().Create();
-            CritterController = GetComponentInChildren<CritterController>(true);
+            CritterController = GetComponentInChildren<ICritterController>(true);
             Effects = GetComponentInChildren<Effects>(true);
 
             CritterController.IsServer = isServer;
             CritterController.OnCritterStatePacket += netPlayer.ForwardCritterStatePacket;
             CritterController.localInputGrabber = (netPlayer.IsSelf) ? localInputGrabber : null;
 
-            if (!isServer && netPlayer.IsSelf)
+            if (netPlayer.IsSelf)
             {
-                CritterController.OnCritterInputPacket += NetworkPlayer.PostCritterInputPacket;
+                if (isServer)
+                {
+                    CritterController.OnCritterInputPacket += (p) =>
+                    {
+                        netPlayer.ServerConnection.SendUpdateCritterInput(netPlayer, p);
+                    };
+                }
+                else
+                {
+                    CritterController.OnCritterInputPacket += NetworkPlayer.PostCritterInputPacket;
+                }
             }
         }
 

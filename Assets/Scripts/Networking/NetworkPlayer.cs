@@ -41,6 +41,7 @@ namespace Networking
         public string Name;
         public CharacterTypes CharacterType;
         internal Player Player;
+        internal ServerConnection ServerConnection;
 
         public bool IsSelf { get; internal set; }
 
@@ -53,7 +54,7 @@ namespace Networking
 
         public NetworkPlayer()
         {
-            CharacterType = CharacterTypes.Cat; //(CharacterTypes)UnityEngine.Random.Range(1, 3);
+            CharacterType = (CharacterTypes)UnityEngine.Random.Range(1, 4);
 
             switch (CharacterType)
             {
@@ -87,6 +88,7 @@ namespace Networking
 
             Connection.SendUnreliable(GameMsgType.UpdateCritterInput, new CritterInputPacketMessage()
             {
+                ID = ID,
                 critterInputPacket = obj
             });
         }

@@ -3,6 +3,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using Networking;
+using System.Linq;
 
 namespace Game
 {
@@ -29,14 +30,13 @@ namespace Game
         public bool Initialized { get; private set; }
         public event EventHandler OnInitialized;
         
-		private Player[] players;
-        public IEnumerable<Player> Players { get { return players; } }
+        public IEnumerable<Player> Players { get { return ConnectionManager.ActivePlayers.Select(p=>p.Player); } }
 
         [SerializeField]
         private Player PlayerPrefab;
 
         public ConnectionManager ConnectionManager;
-        private GameSpawner spawner;
+        public GameSpawner Spawner;
 
         [SerializeField] float mouseSensitivity = 4f;
         public CritterInputGrabber LocalInputGrabber;
@@ -52,19 +52,16 @@ namespace Game
         private IEnumerator InitializeAsync(ConnectionManager connectionManager)
         {
             this.ConnectionManager = connectionManager ?? throw new ArgumentNullException(nameof(connectionManager));
-            spawner = new GameSpawner(this);
+            Spawner = new GameSpawner(this);
 
             connectionManager.OnPlayerConnect += OnPlayerConnect;
             connectionManager.OnActivePlayersUpdated += OnActivePlayersUpdated;
             connectionManager.OnPlayerDisconnect += OnPlayerDisconnect;
 
             yield return connectionManager.Initialize();
-
-            InitializeGame();
-
+            
             Initialized = true;
             OnInitialized?.Invoke(this, EventArgs.Empty);
-
         }
 
         private void OnPlayerDisconnect(Networking.NetworkPlayer player)
@@ -87,8 +84,6 @@ namespace Game
 
             Player player = CreatePlayerObject(netPlayer);
 
-            
-
             NetworkToGameMap.Add(netPlayer, player);
 
             Debug.Log("OnPlayerConnect Player #" + netPlayer.ID + "(" + netPlayer.Name + ")");
@@ -100,7 +95,7 @@ namespace Game
 
             player.Initialize(netPlayer, LocalInputGrabber, ConnectionManager.connectionMode == ConnectionMode.SERVER);
 
-            spawner.Spawn(player);
+            Spawner.Spawn(player);
 
             return player;
         }
@@ -131,24 +126,14 @@ namespace Game
                 connectionManager.
             }
         }*/
-
-        private void InitializeGame()
-        {
-            FindPlayers();
-        }
-
-        private void FindPlayers()
-        {
-            players = FindObjectsOfType<Player>();
-        }
-
+        
         public Player GetPlayer(int id)
         {
-            foreach(Player p in players)
+            foreach(var p in ConnectionManager.ActivePlayers)
             {
-                if(p.NetworkPlayer.ID == id)
+                if(p.ID == id)
                 {
-                    return p;
+                    return p.Player;
                 }
             }
             return null;
